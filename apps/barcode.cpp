@@ -146,6 +146,7 @@ void decode_image(Reader *reader, cv::Mat &image, std::string &bar_read)
 		Ref<OpenCVBitmapSource> source(new OpenCVBitmapSource(image));
 		Ref<Binarizer> binarizer(new GlobalHistogramBinarizer(source));
 		Ref<BinaryBitmap> bitmap(new BinaryBitmap(binarizer));
+		cout << "here" << endl;
 		Ref<Result> result(reader->decode(bitmap, DecodeHints(DecodeHints::TRYHARDER_HINT)));//+DecodeHints::DEFAULT_HINT)));
 		bar_read = result->getText()->getText();  //Note that double getText, yes, if you look into zxing code, 2 indirections are needed
 		bcread += 1;
@@ -190,8 +191,13 @@ int main(int argc, char** argv)
 {
 	string infile = argv[1];
 	cout << infile << endl;
-	Mat img;
-	img = imread(infile);	
+	Mat img = imread(infile);
+	if(!img.data)
+	{
+		cout << "cannot load the file. Wrong path." << endl;
+		return 0;
+	}
+
 	MultiFormatReader *mf;
 	UPCAReader *upca;
 	EAN8Reader *e8;
