@@ -142,13 +142,12 @@ void decode_image(Reader *reader, cv::Mat &image, std::string &bar_read)
 	int bread = 1;
 	try
 	{
+		reader = new EAN13Reader;
 		Ref<OpenCVBitmapSource> source(new OpenCVBitmapSource(image));
 		Ref<Binarizer> binarizer(new GlobalHistogramBinarizer(source));
 		Ref<BinaryBitmap> bitmap(new BinaryBitmap(binarizer));
-		cout << "sending for decoding purpose" << endl;
 		Ref<Result> result(reader->decode(bitmap, DecodeHints(DecodeHints::TRYHARDER_HINT)));//+DecodeHints::DEFAULT_HINT)));
 		bar_read = result->getText()->getText();  //Note that double getText, yes, if you look into zxing code, 2 indirections are needed
-		cout << bar_read << endl;
 		bcread += 1;
 	}
 	catch (zxing::Exception& e)
@@ -156,11 +155,11 @@ void decode_image(Reader *reader, cv::Mat &image, std::string &bar_read)
 		bar_read = "FAIL";  //The way I indicate that we failed to read a barcode
 		bread = 0;
 		bcnoread += 1;
-		//        cerr << "Error: " << e.what() << endl;
+//		cerr << "Error: " << e.what() << endl;
 	}
 
 	bccnt += 1;
-	printf("bc%d: G:%d, B:%d %f\n",bccnt,bcread,bcnoread,(float)bcread/(float)bccnt); //Just for debug statistics, get rid of this
+//	printf("bc%d: G:%d, B:%d %f\n",bccnt,bcread,bcnoread,(float)bcread/(float)bccnt); //Just for debug statistics, get rid of this
 //	return bread;
 }
 
@@ -191,12 +190,15 @@ int main(int argc, char** argv)
 {
 	string infile = argv[1];
 	cout << infile << endl;
-	Mat img = imread(infile);	
+	Mat img;
+	img = imread(infile);	
 	MultiFormatReader *mf;
 	UPCAReader *upca;
 	EAN8Reader *e8;
+	EAN13Reader *e13;
 	string out;
 	cout << "Decoding the image" << endl;
-	decode_image(e8,img,out);
+	decode_image(e13,img,out);
+	cout << "Output " << out << endl;
 	return 0;
 }
