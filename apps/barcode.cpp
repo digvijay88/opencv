@@ -142,7 +142,8 @@ void decode_image(Reader *reader, cv::Mat &image, std::string &bar_read)
 	int bread = 1;
 	try
 	{
-		reader = new EAN13Reader;
+//		reader = new EAN13Reader;
+		reader = new MultiFormatReader;
 		Ref<OpenCVBitmapSource> source(new OpenCVBitmapSource(image));
 		Ref<Binarizer> binarizer(new GlobalHistogramBinarizer(source));
 		Ref<BinaryBitmap> bitmap(new BinaryBitmap(binarizer));
@@ -204,7 +205,7 @@ int main(int argc, char** argv)
 	EAN13Reader *e13;
 	string out;
 	cout << "Decoding the image" << endl;
-	decode_image(e13,img,out);
+	decode_image(mf,img,out);
 	cout << "Output " << out << endl;
 	return 0;
 }
