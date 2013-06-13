@@ -199,13 +199,15 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
+	Mat img_gray;
+	cvtColor( img, img_gray, CV_BGR2GRAY );
 	MultiFormatReader *mf;
 	UPCAReader *upca;
 	EAN8Reader *e8;
 	EAN13Reader *e13;
 	string out;
 	cout << "Decoding the image" << endl;
-	decode_image(mf,img,out);
+	decode_image(mf,img_gray,out);
 	cout << "Output " << out << endl;
 	return 0;
 }
