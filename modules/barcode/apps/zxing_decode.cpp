@@ -12,36 +12,7 @@
  *
  */
 
-#include<string>
-#include<fstream>
-#include<iostream>
-#include<vector>
-#include<cv.h>
-#include<highgui.h>
-
-using namespace cv;
-using namespace std;
-
-//////////////ZXING BARCODE READER////////////////////////////////////////////////////
-#include <zxing/LuminanceSource.h>
-#include <zxing/MultiFormatReader.h>
-#include <zxing/oned/OneDReader.h>
-#include <zxing/oned/EAN8Reader.h>
-#include <zxing/oned/EAN13Reader.h>
-#include <zxing/oned/Code128Reader.h>
-#include<zxing/oned/UPCAReader.h>
-#include <zxing/datamatrix/DataMatrixReader.h>
-#include <zxing/qrcode/QRCodeReader.h>
-#include <zxing/aztec/AztecReader.h>
-#include <zxing/common/GlobalHistogramBinarizer.h>
-#include <zxing/Exception.h>
-#include <zxing/DecodeHints.h>
-
-using namespace zxing;
-using namespace oned;
-using namespace datamatrix;
-using namespace qrcode;
-using namespace aztec;
+#include "zxing_decode.h"
 
 namespace{  //Don't pollute the namespace, hide names that are only needed locally
 	const char* barcodeNames[] = {
@@ -72,67 +43,60 @@ namespace{  //Don't pollute the namespace, hide names that are only needed local
  * @return           string of BarCodeType
  */
 /*std::string Barcode1D::getBarcodeName(BarCodeType bctype)
+  {
+  enum BarCodeType m = BarCodeType_MAX;
+  if((bctype < 0)||(bctype > m+1)) bctype = ALL;
+  string s(barcodeNames[bctype]);
+  return s;
+  }*/
+
+OpenCVBitmapSource::OpenCVBitmapSource(cv::Mat &image): LuminanceSource(image.cols, image.rows)
 {
-	enum BarCodeType m = BarCodeType_MAX;
-	if((bctype < 0)||(bctype > m+1)) bctype = ALL;
-	string s(barcodeNames[bctype]);
-	return s;
-}*/
+	m_pImage = image.clone();
+}
 
-class OpenCVBitmapSource : public LuminanceSource
+OpenCVBitmapSource::~OpenCVBitmapSource()
 {
-	private:
-		cv::Mat m_pImage;
+}
 
-	public:
-		OpenCVBitmapSource(cv::Mat &image)
-			: LuminanceSource(image.cols, image.rows)
+int OpenCVBitmapSource:: getWidth() const
+{
+	return m_pImage.cols;
+}
+
+int OpenCVBitmapSource:: getHeight() const
+{
+	return m_pImage.rows;
+}
+
+
+ArrayRef<char> OpenCVBitmapSource::getRow(int y, ArrayRef<char> row) const
+{
+	int width_ = getWidth();
+	if (!row)
+		row = ArrayRef<char>(width_);
+
+	const char *p = m_pImage.ptr<char>(y);
+	for(int x = 0; x<width_; ++x, ++p)
+		row[x] = *p;
+	return row;
+}
+
+ArrayRef<char> OpenCVBitmapSource::getMatrix() const
+{
+	int width_ = getWidth();
+	int height_ =  getHeight();
+	ArrayRef<char> matrix = ArrayRef<char>(width_*height_);
+	for (int y = 0; y < height_; ++y)
+	{
+		const char *p = m_pImage.ptr<char>(y);
+		for(int x = 0; x < width_; ++x, ++p)
 		{
-			m_pImage = image.clone();
+			matrix[y*width_ + x] = *p;
 		}
-
-		~OpenCVBitmapSource()
-		{
-		}
-
-		int getWidth() const { return m_pImage.cols; }
-		int getHeight() const { return m_pImage.rows; }
-
-		ArrayRef<char> getRow(int y, ArrayRef<char> row) const
-		{
-			int width_ = getWidth();
-			if (!row)
-				row = ArrayRef<char>(width_);
-
-			const char *p = m_pImage.ptr<char>(y);
-			for(int x = 0; x<width_; ++x, ++p)
-				row[x] = *p;
-			return row;
-		}
-
-		ArrayRef<char> getMatrix() const
-		{
-			int width_ = getWidth();
-			int height_ =  getHeight();
-			ArrayRef<char> matrix = ArrayRef<char>(width_*height_);
-			for (int y = 0; y < height_; ++y)
-			{
-				const char *p = m_pImage.ptr<char>(y);
-				for(int x = 0; x < width_; ++x, ++p)
-				{
-					matrix[y*width_ + x] = *p;
-				}
-			}
-			return matrix;
-		}
-		/*
-		// The following methods are not supported by this demo (the DataMatrix Reader doesn't call these methods)
-		bool isCropSupported() const { return false; }
-		Ref<LuminanceSource> crop(int left, int top, int width, int height) {}
-		bool isRotateSupported() const { return false; }
-		Ref<LuminanceSource> rotateCounterClockwise() {}
-		 */
-};
+	}
+	return matrix;
+}
 
 
 //This is your barcode reader call to Zxing C++ version
@@ -151,27 +115,7 @@ void decode_image(Reader *reader, cv::Mat &image, std::string &bar_read)
 	catch (zxing::Exception& e)
 	{
 		bar_read = "FAIL";  //The way I indicate that we failed to read a barcode
-//		cerr << "Error: " << e.what() << endl;
+		//		cerr << "Error: " << e.what() << endl;
 	}
 
-}
-
-int main(int argc, char** argv)
-{
-	string infile = argv[1];
-	cout << infile << endl;
-	Mat img = imread(infile,CV_LOAD_IMAGE_GRAYSCALE);
-	if(!img.data)
-	{
-		cout << "cannot load the file. Wrong path." << endl;
-		return 0;
-	}
-
-	MultiFormatReader *mf;
-	mf = new MultiFormatReader;
-	string out;
-	cout << "Decoding the image" << endl;
-	decode_image(mf,img,out);
-	cout << "Output " << out << endl;
-	return 0;
 }

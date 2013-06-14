@@ -6,6 +6,7 @@
 #include<vector>
 #include<string>
 #include<cstring>
+#include "zxing_decode.h"
 
 using namespace std;
 using namespace cv;
