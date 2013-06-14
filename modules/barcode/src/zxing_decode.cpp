@@ -12,7 +12,7 @@
  *
  */
 
-#include "zxing_decode.h"
+#include "zxing_decode.hpp"
 
 namespace{  //Don't pollute the namespace, hide names that are only needed locally
 	const char* barcodeNames[] = {

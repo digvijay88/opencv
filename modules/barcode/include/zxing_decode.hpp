@@ -5,8 +5,7 @@
 #include<fstream>
 #include<iostream>
 #include<vector>
-#include<cv.h>
-#include<highgui.h>
+#include<opencv2/core.hpp>
 
 using namespace cv;
 using namespace std;
