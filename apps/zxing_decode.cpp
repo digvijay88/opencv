@@ -134,7 +134,6 @@ class OpenCVBitmapSource : public LuminanceSource
 		 */
 };
 
-static int bccnt = 0, bcread = 0, bcnoread = 0;  //Get rid of these, I just use them to keep statistics during testing
 
 //This is your barcode reader call to Zxing C++ version
 void decode_image(Reader *reader, cv::Mat &image, std::string &bar_read)
@@ -142,47 +141,20 @@ void decode_image(Reader *reader, cv::Mat &image, std::string &bar_read)
 	int bread = 1;
 	try
 	{
-		reader = new MultiFormatReader;
 		Ref<OpenCVBitmapSource> source(new OpenCVBitmapSource(image));
 		Ref<Binarizer> binarizer(new GlobalHistogramBinarizer(source));
 		Ref<BinaryBitmap> bitmap(new BinaryBitmap(binarizer));
 		cout << "here" << endl;
 		Ref<Result> result(reader->decode(bitmap, DecodeHints(DecodeHints::TRYHARDER_HINT)));//+DecodeHints::DEFAULT_HINT)));
 		bar_read = result->getText()->getText();  //Note that double getText, yes, if you look into zxing code, 2 indirections are needed
-		bcread += 1;
 	}
 	catch (zxing::Exception& e)
 	{
 		bar_read = "FAIL";  //The way I indicate that we failed to read a barcode
-		bread = 0;
-		bcnoread += 1;
 //		cerr << "Error: " << e.what() << endl;
 	}
 
 }
-
-enum BarCodeType
-{
-	ALL,                                //!< ALL
-	AZTEC, //2D
-	CODABAR,                           //!< CODABAR
-	CODE_39,                           //!< CODE_39
-	CODE_93,                           //!< CODE_93
-	CODE_128,                          //!< CODE_128
-	DATA_MATRIX,                       //!< DATA_MATRIX
-	EAN_8,                             //!< EAN_8
-	EAN_13,                            //!< EAN_13
-	ITF,                               //!< ITF
-	MAXICODE,                          //!< MAXICODE
-	PDF_417,                           //!< PDF_417
-	QR_CODE,                           //!< QR_CODE
-	RSS_14,                            //!< RSS_14
-	RSS_EXPANDED,                      //!< RSS_EXPANDED
-	UPC_A,                             //!< UPC_A
-	UPC_E,                             //!< UPC_E
-	UPC_EAN_EXTENSION,                 //!< UPC_EAN_EXTENSION
-	BarCodeType_MAX = UPC_EAN_EXTENSION//!< BarCodeType_MAX
-};
 
 int main(int argc, char** argv)
 {
@@ -196,6 +168,7 @@ int main(int argc, char** argv)
 	}
 
 	MultiFormatReader *mf;
+	mf = new MultiFormatReader;
 	string out;
 	cout << "Decoding the image" << endl;
 	decode_image(mf,img,out);
