@@ -6,7 +6,8 @@
 #include<vector>
 #include<string>
 #include<cstring>
-#include "zxing_decode.h"
+#include<fstream>
+//#include "zxing_decode.h"
 
 using namespace std;
 using namespace cv;
@@ -14,7 +15,7 @@ using namespace boost::filesystem;
 
 typedef vector<path> vec;
 
-FILE *fp;
+ofstream file;
 
 string convertInt(int number)
 {
@@ -29,14 +30,14 @@ void mousehandler(int event,int x, int y,int flags,void *param)
 	{
 		cout << x << " " << y << " "<< endl;
 	       	string st = convertInt(x) + ' ' + convertInt(y) + '\n';
-		fputs(st.c_str(),fp);
+		file << st;
 	}
 }
 
 int main(int argc,char *argv[])
 {
 	path p (argv[1]);   // p reads clearer than argv[1] in the following code
-	fp = fopen("coordinates.txt","w+");
+	file.open("coordinates.txt");
 
 	if (exists(p))    // does p actually exist?
 	{
@@ -58,7 +59,7 @@ int main(int argc,char *argv[])
 					cout << temp << endl;
 					Mat img = imread(temp);
 					temp = temp + '\n';
-					fputs(temp.c_str(),fp);
+					file << temp;
 					imshow("AnnotateGT",img);
 					cvWaitKey(0);
 					if(cnt == 2)
@@ -74,6 +75,6 @@ int main(int argc,char *argv[])
 	}
 	else
 		cout << p << " does not exist\n";
-	fclose(fp);
+	file.close();
 	return 0;
 }
