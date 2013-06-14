@@ -159,9 +159,6 @@ void decode_image(Reader *reader, cv::Mat &image, std::string &bar_read)
 //		cerr << "Error: " << e.what() << endl;
 	}
 
-	bccnt += 1;
-//	printf("bc%d: G:%d, B:%d %f\n",bccnt,bcread,bcnoread,(float)bcread/(float)bccnt); //Just for debug statistics, get rid of this
-//	return bread;
 }
 
 enum BarCodeType
