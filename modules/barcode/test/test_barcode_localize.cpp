@@ -10,14 +10,14 @@ public:
 	CV_BARCODE_LOCALIZETest();
 	~CV_BARCODE_LOCALIZETest();
 protected:
-	void run();
+	void run(int);
 };
 
 
 CV_BARCODE_LOCALIZETest::CV_BARCODE_LOCALIZETest() {}
 CV_BARCODE_LOCALIZETest::~CV_BARCODE_LOCALIZETest() {}
 
-void CV_BARCODE_LOCALIZETest::run()
+void CV_BARCODE_LOCALIZETest::run( int )
 {
 	ifstream ifs1,ifs2;
 	
@@ -37,4 +37,4 @@ void CV_BARCODE_LOCALIZETest::run()
 }
 
 
-TEST(Decode_1DBARCODE, accuracy) { CV_BARCODE_LOCALIZETest test; test.safe_run(); }
+TEST(LOCALIZE_1DBARCODE, accuracy) { CV_BARCODE_LOCALIZETest test; test.safe_run(); }
