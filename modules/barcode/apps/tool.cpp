@@ -7,14 +7,13 @@
 #include<string>
 #include<cstring>
 #include<fstream>
-//#include "zxing_decode.h"
+#include "zxing_decode.h"
 
 using namespace std;
 using namespace cv;
 using namespace boost::filesystem;
 
 typedef vector<path> vec;
-
 ofstream file;
 
 string convertInt(int number)
@@ -52,7 +51,6 @@ int main(int argc,char *argv[])
 			int cnt = 0;
 			for (vec::const_iterator it (v.begin()); it != v.end(); ++it)
 			{
-				//				cout << "   " << *it << '\n';
 				string temp = it->string();
 				if(temp.compare(temp.size()-4,4,".png") == 0 || temp.compare(temp.size()-4,4,".jpg") == 0)
 				{
@@ -62,10 +60,14 @@ int main(int argc,char *argv[])
 					file << temp;
 					imshow("AnnotateGT",img);
 					cvWaitKey(0);
+
+					if(!parse_with_zxing(img))
+					{
+						cout << "Zxing Failed in decoding" << endl;
+					}
 					if(cnt == 2)
 						break;
 					cnt++;
-					//					img.deallocate();	
 				}
 			}
 			cvDestroyWindow("AnnotateGT");
