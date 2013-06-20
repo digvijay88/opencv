@@ -18,7 +18,6 @@ using ::testing::TestPartResult;
 using ::testing::UnitTest;
 
 ifstream ifs1, ifs2;
-int indx1, indx2;
 
 namespace {
 
