@@ -7,7 +7,7 @@ SET(LIBRARY_PATHS
     /usr/local/lib
     /sw/lib
     /opt/local/lib
-    "${ProgramFiles_ENV_PATH}/Zxing/lib/static"
+    "${ProgramFiles_ENV_PATH}/zxing/lib/static"
     "${ZXING_ROOT}/lib")
 
 FIND_PATH(ZXING_INCLUDE_PATH
@@ -17,7 +17,7 @@ FIND_PATH(ZXING_INCLUDE_PATH
     /usr/local/include
     /sw/include
     /opt/local/include
-    "${ProgramFiles_ENV_PATH}/Zxing/include"
+    "${ProgramFiles_ENV_PATH}/zxing/include"
     "${ZXING_ROOT}/include")
 
 IF(ZXING_FOUND)
