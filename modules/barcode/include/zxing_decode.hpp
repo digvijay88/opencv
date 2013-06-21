@@ -11,19 +11,19 @@ using namespace cv;
 using namespace std;
 
 //////////////ZXING BARCODE READER////////////////////////////////////////////////////
-#include <zxing/LuminanceSource.h>
-#include <zxing/MultiFormatReader.h>
-#include <zxing/oned/OneDReader.h>
-#include <zxing/oned/EAN8Reader.h>
-#include <zxing/oned/EAN13Reader.h>
-#include <zxing/oned/Code128Reader.h>
-#include<zxing/oned/UPCAReader.h>
-#include <zxing/datamatrix/DataMatrixReader.h>
-#include <zxing/qrcode/QRCodeReader.h>
-#include <zxing/aztec/AztecReader.h>
-#include <zxing/common/GlobalHistogramBinarizer.h>
-#include <zxing/Exception.h>
-#include <zxing/DecodeHints.h>
+#include "zxing/LuminanceSource.h"
+#include "zxing/MultiFormatReader.h"
+#include "zxing/oned/OneDReader.h"
+#include "zxing/oned/EAN8Reader.h"
+#include "zxing/oned/EAN13Reader.h"
+#include "zxing/oned/Code128Reader.h"
+#include"zxing/oned/UPCAReader.h"
+#include "zxing/datamatrix/DataMatrixReader.h"
+#include "zxing/qrcode/QRCodeReader.h"
+#include "zxing/aztec/AztecReader.h"
+#include "zxing/common/GlobalHistogramBinarizer.h"
+#include "zxing/Exception.h"
+#include "zxing/DecodeHints.h"
 
 using namespace zxing;
 using namespace oned;
