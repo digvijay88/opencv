@@ -82,6 +82,8 @@ int decide_directory(path p)
 		return 2;
 	else if(string::npos != temp.find("UCSC_UPC_Dataset"))
 		return 3;
+	else if(string::npos != temp.find("zxing"))
+		return 4;
 	else
 		return 0;
 }
@@ -107,7 +109,14 @@ int main(int argc,char *argv[])
 			/*		int cnt = 0;*/
 
 			int dir_flag = decide_directory(p);
+			string format_temp;
+			if(dir_flag == 4)
+			{
+				cout << "Enter the barcode format: ";
+				cin >> format_temp;
+			}
 			cout << dir_flag << endl;
+			int flgg = 0;
 			for (vec::const_iterator it (v.begin()); it != v.end(); ++it)
 			{
 				string temp = it->string();
@@ -151,6 +160,29 @@ int main(int argc,char *argv[])
 						cout << "The decode output is " << decode_out[0] << endl;
 						barcode_present = true;
 						barcode_format.push_back("UPC_A");
+					}
+					else if(dir_flag == 4)		//zxing
+					{
+						f_name = "./gt/" + basename(temp) + ".yml";
+						cout << "Filename is " << f_name << endl;
+//						if(flgg == 0)
+//						{
+//							if(basename(temp) == "5")
+//								flgg = 1;
+//							continue;
+//						}
+
+						string inStr = temp.substr(0,temp.size()-3) + "txt";
+						cout << inStr << endl;
+						ifstream inFile;
+						inFile.open(inStr.c_str());
+						string one_line;
+						getline(inFile,one_line);
+						cout << one_line << endl;
+						inFile.close();
+						decode_out.push_back(one_line);
+						barcode_format.push_back(format_temp);
+						barcode_present = true;
 					}
 					else
 					{
@@ -202,6 +234,6 @@ int main(int argc,char *argv[])
 	}
 	else
 		cout << p << " does not exist\n";
-	file.close();
+//	file.close();
 	return 0;
 }
