@@ -1,12 +1,21 @@
 #include "test_precomp.hpp"
 #include <fstream>
-#include "opencv2/opencv.hpp"
 #include<cmath>
 #include<algorithm>
+#include<vector>
+#include<string>
+#include<boost/filesystem.hpp>
+#include "opencv2/highgui.hpp"
+#include "opencv2/core.hpp"
+
 
 using namespace std;
 using namespace cv;
 using namespace boost::filesystem;
+
+#include "zxing/MultiFormatReader.h"
+
+using namespace zxing;
 
 typedef vector<path> vec_P;
 
@@ -50,13 +59,14 @@ void CV_BARCODE_LOCALIZETest::run (int)
 	vector<string> dataset_paths;
 	dataset_paths.push_back("/home/diggy/git/opencv_extra/testdata/cv/barcode1D_dataset/zxing/zxing-2.2/core/test/data/blackbox/upca-1");
 
-
+	CvPoint P1;
 	for (int i = 0; i < dataset_paths.size (); i++)
 	{
-		path p = dataset_paths (i).c_str ();
+		cout << dataset_paths[i] << endl;
+		path p (dataset_paths[i].c_str());
 		if (exists (p))
 		{
-			path GT = dataset_paths (i) + "/gt/";
+			path GT = dataset_paths[i] + "/gt/";
 
 			vec_P images_path;
 			vec_P gt_path;
@@ -67,7 +77,7 @@ void CV_BARCODE_LOCALIZETest::run (int)
 			for (vec_P::const_iterator it = images_path.begin();it != images_path.end(); it++)
 			{
 				string temp_st = it->string();
-				if (temp_st.compare (temp_st.size () - 4, 4, ".png") == 0 || temp_st.compare (temp_st.size () - 4, 4, ".jpg") == 0 || temp_st.compare (temp_st.size () - 4, 4, ".JPG") == 0 || temp_st.compare (temp_st.size () - 4, 4, ".PNG"))
+				if (temp_st.compare(temp_st.size()-4,4,".png") == 0 || temp_st.compare(temp_st.size()-4,4,".jpg") == 0 || temp_st.compare (temp_st.size()-4,4,".JPG") == 0 || temp_st.compare (temp_st.size()-4,4,".PNG"))
 				{
 					//got the image, now decode it using the function decode_image
 					MultiFormatReader mf;
@@ -78,7 +88,7 @@ void CV_BARCODE_LOCALIZETest::run (int)
 
 					//read the GT for the same image
 					string temp_gt = it_gt->string();
-					FileStorage fs(temp_gt,FILESTORAGE::READ);
+					FileStorage fs(temp_gt,FileStorage::READ);
 					
 					vector<vector<Point> > gt_points;
 					fs["corner_points"] >> gt_points;
@@ -103,7 +113,7 @@ void CV_BARCODE_LOCALIZETest::run (int)
 					float norm_x = (x2-x1)/lenth;
 					float norm_y = (y2-y1)/lenth;
 					int pnts_count = 0;		// if this is greater than or equal to 8, then PASS
-					for(int j=0:j < 10;j++)
+					for(int j=0;j < 10;j++)
 					{
 						int new_x = (int)(x1 + (norm_x*lenth*j)/9.0);
 						int new_y = (int)(y1 + (norm_y*lenth*j)/9.0);

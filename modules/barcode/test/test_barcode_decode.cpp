@@ -25,6 +25,7 @@ void CV_BARCODE_DECODETest::run(int)
 {
 	vector<string> dataset_paths;
 	dataset_paths.push_back("/home/diggy/git/opencv_extra/testdata/cv/barcode1D_dataset/zxing/zxing-2.2/core/test/data/blackbox/upca-1");
+
 	for (int i = 0; i < dataset_paths.size (); i++)
 	{
 		path p = dataset_paths (i).c_str ();
