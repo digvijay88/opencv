@@ -46,10 +46,8 @@ CV_BARCODE_LOCALIZETest::~CV_BARCODE_LOCALIZETest ()
 
 void CV_BARCODE_LOCALIZETest::run (int)
 {
-	ifstream ifs1, ifs2;
 
-	//      cout << "here1" << endl;
-	vector < string > dataset_paths;
+	vector<string> dataset_paths;
 	dataset_paths.push_back("/home/diggy/git/opencv_extra/testdata/cv/barcode1D_dataset/zxing/zxing-2.2/core/test/data/blackbox/upca-1");
 
 
@@ -140,7 +138,7 @@ void CV_BARCODE_LOCALIZETest::run (int)
 					//Condition #2: The two points given by the zxing result will draw a scan line across the barcode.
 					//The points will lie closes to either the edge 1->4 or 2->3. If it is true, then it will PASS
 					// this additional test.
-					
+					// Is this really necessary? Probably some other test.	
 				}
 				it_gt++;
 			}
@@ -149,25 +147,6 @@ void CV_BARCODE_LOCALIZETest::run (int)
 			cout << "PATH: " << dataset_paths (i) << " does not exist" << endl;
 	}
 
-/*	ifs1.open ("/home/diggy/in1.txt",ifstream::in);
-	ifs2.open ("/home/diggy/in2.txt",ifstream::in);
-	cout << "here2" << endl;
-	cout << ts << " here " << endl;
-	      if(!ifs1 && !ifs2)
-		{
-		cout << "ptr" << endl;
-		}
-	 
-	string s1, s2; 
-	while (getline (ifs1, s1))
-	{
-		getline (ifs2, s2);
-		cout << s1 << " " << s2 << endl;
-		EXPECT_STREQ (s1.c_str (), s2.c_str ());
-	}
-
-	ifs1.close ();
-	ifs2.close (); */
 	cout << "Done " << endl;
 }
 
