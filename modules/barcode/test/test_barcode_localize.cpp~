@@ -1,0 +1,101 @@
+#include "test_precomp.hpp"
+#include <fstream>
+
+using namespace std;
+using namespace cv;
+using namespace boost::filesystem;
+
+typedef vector<path> vec_P;
+
+struct MatchPathSeparator
+{
+	bool operator()( char ch ) const
+	{   
+		return ch == '/';
+	}   
+};
+
+string basename( string const& pathname )
+{
+	//      cout << find_if(pathname.rbegin(), pathname.rend(),MatchPathSeparator()).base() << endl;
+	string temp = string ( find_if( pathname.rbegin(), pathname.rend(), MatchPathSeparator() ).base(), pathname.end() );
+	return temp;
+}
+
+class CV_BARCODE_LOCALIZETest : public cvtest::BaseTest
+{
+	public:
+		CV_BARCODE_LOCALIZETest();
+		~CV_BARCODE_LOCALIZETest();
+	protected:
+		void run(int);
+};
+
+
+CV_BARCODE_LOCALIZETest::CV_BARCODE_LOCALIZETest() {}
+CV_BARCODE_LOCALIZETest::~CV_BARCODE_LOCALIZETest() {}
+
+void CV_BARCODE_LOCALIZETest::run( int )
+{
+	ifstream ifs1,ifs2;
+
+	//	cout << "here1" << endl;
+	vector<string> dataset_paths;
+	dataset_paths.push_back("/home/diggy/git/opencv_extra/testdata/cv/barcode1D_dataset/zxing/zxing-2.2/core/test/data/blackbox/upca-1");
+
+
+	for(int i=0;i<dataset_paths.size();i++)
+	{
+		path p = dataset_paths(i).c_str();
+		if(exists(p))
+		{
+			path GT = dataset_paths(i) + "/gt/";
+
+			vec_P images_path;
+			vec_P gt_path;
+			copy(directory_iterator(p),directory_iterator(),back_inserter(images_path));
+			copy(directory_iterator(GT),directory_iterator(),back_inserter(gt_path));
+
+			for(vec_P::const_iterator it = images_path.begin(); it != images_path.end(); it++)
+			{
+				string temp_st = it->string();
+				if(temp_st.compare(temp_st.size()-4,4,".png") == 0 || temp_st.compare(temp_st.size()-4,4,".jpg") == 0 || temp_st.compare(temp_st.size()-4,4,".JPG") == 0 || temp_st.compare(temp_st.size()-4,4,".PNG"))
+				{
+					//got the image, now decode it using the function decode_image
+					MultiFormatReader mf;
+					Mat img = imread(basename(temp_st);
+							decode_image(&mf, cv::Mat &image, std::string &bar_read, vector<Point> &pts);
+							}
+							}
+							}
+							else
+							cout << "PATH: " << dataset_paths(i) << " does not exist" << endl;
+							}
+
+							ifs1.open("/home/diggy/in1.txt",ifstream::in);	
+							ifs2.open("/home/diggy/in2.txt",ifstream::in);	
+
+							cout << "here2" << endl;
+							cout << ts << " here " << endl;
+
+							/*	if(!ifs1 && !ifs2)
+								{
+								cout << "ptr" << endl;
+								}
+							 */
+							string s1,s2;
+							while(getline(ifs1,s1))
+							{
+								getline(ifs2,s2);
+								cout << s1 << " " << s2 << endl;
+
+								EXPECT_STREQ(s1.c_str(),s2.c_str());
+							}	
+
+							ifs1.close();
+							ifs2.close(); 
+							cout << "Done " << endl;
+}
+
+
+TEST(LOCALIZE_1DBARCODE, accuracy) { CV_BARCODE_LOCALIZETest test; test.safe_run(); }

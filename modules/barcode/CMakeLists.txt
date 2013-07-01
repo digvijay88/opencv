@@ -1,4 +1,6 @@
 set(the_description "Barcode")
-ocv_define_module(barcode opencv_core opencv_imgproc opencv_flann OPTIONAL opencv_highgui)
+ocv_define_module(barcode opencv_core opencv_highgui opencv_imgproc)
 
-set_target_properties(${zxing} PROPERTIES LINK_INTERFACE_LIBRARIES "zxing")
+set_target_properties(${the_module} PROPERTIES LINK_INTERFACE_LIBRARIES "zxing")
+set_target_properties(${the_module} PROPERTIES LINK_INTERFACE_LIBRARIES "boost_system")
+set_target_properties(${the_module} PROPERTIES LINK_INTERFACE_LIBRARIES "boost_filesystem")

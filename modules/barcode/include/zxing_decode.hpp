@@ -6,9 +6,11 @@
 #include<iostream>
 #include<vector>
 #include<opencv2/core.hpp>
+#include<boost/filesystem.hpp>
 
 using namespace cv;
 using namespace std;
+using namespace boost::filesystem;
 
 //////////////ZXING BARCODE READER////////////////////////////////////////////////////
 #include "zxing/LuminanceSource.h"
@@ -17,7 +19,7 @@ using namespace std;
 #include "zxing/oned/EAN8Reader.h"
 #include "zxing/oned/EAN13Reader.h"
 #include "zxing/oned/Code128Reader.h"
-#include"zxing/oned/UPCAReader.h"
+#include "zxing/oned/UPCAReader.h"
 #include "zxing/datamatrix/DataMatrixReader.h"
 #include "zxing/qrcode/QRCodeReader.h"
 #include "zxing/aztec/AztecReader.h"
@@ -72,6 +74,6 @@ class OpenCVBitmapSource : public LuminanceSource
 
 
 //This is your barcode reader call to Zxing C++ version
-void decode_image(Reader *reader, cv::Mat &image, std::string &bar_read);
+void decode_image(Reader *reader, cv::Mat &image, std::string &bar_read, vector<Point> &pts);
 
 #endif

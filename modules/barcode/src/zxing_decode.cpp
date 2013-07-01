@@ -100,9 +100,8 @@ ArrayRef<char> OpenCVBitmapSource::getMatrix() const
 
 
 //This is your barcode reader call to Zxing C++ version
-void decode_image(Reader *reader, cv::Mat &image, std::string &bar_read)
+void decode_image(Reader *reader, cv::Mat &image, std::string &bar_read, vector<Point> &pts)
 {
-	int bread = 1;
 	try
 	{
 		Ref<OpenCVBitmapSource> source(new OpenCVBitmapSource(image));
@@ -111,6 +110,20 @@ void decode_image(Reader *reader, cv::Mat &image, std::string &bar_read)
 		cout << "here" << endl;
 		Ref<Result> result(reader->decode(bitmap, DecodeHints(DecodeHints::TRYHARDER_HINT)));//+DecodeHints::DEFAULT_HINT)));
 		bar_read = result->getText()->getText();  //Note that double getText, yes, if you look into zxing code, 2 indirections are needed
+
+		//Get the two coordinates of zxing
+		ArrayRef< Ref<ResultPoint> > &points = result->getResultPoints();
+		
+		if(points && !points->empty())
+		{
+			for(int i=0;i < points->size();i++)
+			{
+				Point temp_pt;
+				temp_pt.x = points[i]->getX();
+				temp_pt.y = points[i]->getY();
+				pts.push_back(temp_pt);
+			}
+		}
 	}
 	catch (zxing::Exception& e)
 	{

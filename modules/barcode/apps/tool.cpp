@@ -60,8 +60,8 @@ void mousehandler(int event,int X, int Y,int flags,void *param)
 			corner_points.push_back(temp_points);
 			temp_points.clear();
 		}
-//		string st = convertInt(x) + ' ' + convertInt(y) + '\n';
-//		file << st;
+		//		string st = convertInt(x) + ' ' + convertInt(y) + '\n';
+		//		file << st;
 	}
 }
 
@@ -92,7 +92,7 @@ int decide_directory(path p)
 int main(int argc,char *argv[])
 {
 	path p (argv[1]);   // p reads clearer than argv[1] in the following code
-//	file.open("coordinates.txt");
+	//	file.open("coordinates.txt");
 
 	if (exists(p))    // does p actually exist?
 	{
@@ -101,7 +101,7 @@ int main(int argc,char *argv[])
 			cout << p << " is a directory. Thank You!!\n";
 			vec v;
 			copy(directory_iterator(p), directory_iterator(), back_inserter(v));
-//			cout << "hell yeah" << endl;
+			//			cout << "hell yeah" << endl;
 			vector<string> images_list;
 			cvNamedWindow("AnnotateGT",CV_WINDOW_NORMAL);
 			cvSetMouseCallback("AnnotateGT", mousehandler);
@@ -120,8 +120,8 @@ int main(int argc,char *argv[])
 			for (vec::const_iterator it (v.begin()); it != v.end(); ++it)
 			{
 				string temp = it->string();
-//				cout << temp << endl;
-//				cout << basename(temp) << endl;
+				//				cout << temp << endl;
+				//				cout << basename(temp) << endl;
 				if(temp.compare(temp.size()-4,4,".png") == 0 || temp.compare(temp.size()-4,4,".jpg") == 0)
 				{
 					cout << temp << endl;
@@ -165,12 +165,12 @@ int main(int argc,char *argv[])
 					{
 						f_name = "./gt/" + basename(temp) + ".yml";
 						cout << "Filename is " << f_name << endl;
-//						if(flgg == 0)
-//						{
-//							if(basename(temp) == "5")
-//								flgg = 1;
-//							continue;
-//						}
+						//						if(flgg == 0)
+						//						{
+						//							if(basename(temp) == "5")
+						//								flgg = 1;
+						//							continue;
+						//						}
 
 						string inStr = temp.substr(0,temp.size()-3) + "txt";
 						cout << inStr << endl;
@@ -193,7 +193,7 @@ int main(int argc,char *argv[])
 					Mat img = imread(temp);
 					imshow("AnnotateGT",img);
 					cvWaitKey(0);
-					
+
 					fs.open(f_name,FileStorage::WRITE);
 
 					fs << "barcode_present" << barcode_present;
@@ -201,19 +201,19 @@ int main(int argc,char *argv[])
 					for(int i=0;i < barcode_format.size();i++)
 						fs << "[:" << barcode_format[i] << "]";
 					fs << "]";
-					
+
 					fs << "decode_out" << "[:";
 					for(int i=0;i < decode_out.size();i++)
 						fs << "[:" << decode_out[i] << "]";
 					fs << "]";
-					
+
 					fs << "corner_points" << "[";
 					for(int i=0;i < corner_points.size();i++)
 					{
 						fs << "[:";
 						for(int j=0;j < corner_points[i].size();j++)
 						{
-//							cout << corner_points[i][j];
+							//							cout << corner_points[i][j];
 							fs << "[:" << corner_points[i][j].x << corner_points[i][j].y << "]";
 						}
 						fs << "]";
@@ -221,10 +221,10 @@ int main(int argc,char *argv[])
 					fs << "]";
 
 					fs.release();
-//					if(!parse_with_zxing(img))
-//					{
-//						cout << "Zxing Failed in decoding" << endl;
-//					}
+					//					if(!parse_with_zxing(img))
+					//					{
+					//						cout << "Zxing Failed in decoding" << endl;
+					//					}
 				}
 			}
 			cvDestroyWindow("AnnotateGT");
@@ -234,6 +234,6 @@ int main(int argc,char *argv[])
 	}
 	else
 		cout << p << " does not exist\n";
-//	file.close();
+	//	file.close();
 	return 0;
 }

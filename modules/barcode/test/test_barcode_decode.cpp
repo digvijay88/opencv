@@ -10,21 +10,25 @@ public:
 	CV_BARCODE_DECODETest();
 	~CV_BARCODE_DECODETest();
 protected:
-	void run();
+	void run(int);
 };
 
 
 CV_BARCODE_DECODETest::CV_BARCODE_DECODETest() {}
 CV_BARCODE_DECODETest::~CV_BARCODE_DECODETest() {}
 
-void CV_BARCODE_DECODETest::run()
+void CV_BARCODE_DECODETest::run(int)
 {
-	ifstream ifs1,ifs2;
+/*	ifstream ifs1,ifs2;
 	
+	cout << "here1" << endl;
+
 	ifs1.open("in1.txt",ifstream::in);	
-	ifs2.open("in2.txt",ifstream::in);	
-	
-	string s1,s2;
+	ifs2.open("in2.txt",ifstream::in);	*/
+
+	cout << "here2" << endl;
+
+/*	string s1,s2;
 	while(getline(ifs1,s1))
 	{
 		getline(ifs2,s2);
@@ -33,8 +37,8 @@ void CV_BARCODE_DECODETest::run()
 	}	
 
 	ifs1.close();
-	ifs2.close();
+	ifs2.close();*/
 }
 
 
-TEST(Decode_1DBARCODE, accuracy) { CV_BARCODE_DECODETest test; test.safe_run(); }
+TEST(DECODE_1DBARCODE, accuracy) { CV_BARCODE_DECODETest test; test.safe_run(); }
