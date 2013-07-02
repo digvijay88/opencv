@@ -1,12 +1,20 @@
 #include "test_precomp.hpp"
 #include <fstream>
-#include "opencv2/opencv.hpp"
+#include "opencv2/highgui.hpp"
+#include "opencv2/core.hpp"
 #include<boost/filesystem.hpp>
+#include "zxing_decode.hpp"
+#include<vector>
+#include<string>
 
 
 using namespace std;
 using namespace cv;
 using namespace boost::filesystem;
+
+#include "zxing/MultiFormatReader.h"
+
+using namespace zxing;
 
 class CV_BARCODE_DECODETest : public cvtest::BaseTest
 {

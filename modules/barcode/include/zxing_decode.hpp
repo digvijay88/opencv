@@ -5,7 +5,8 @@
 #include<fstream>
 #include<iostream>
 #include<vector>
-#include<opencv2/core.hpp>
+#include "opencv2/core.hpp"
+#include "opencv2/highgui.hpp"
 #include<boost/filesystem.hpp>
 
 using namespace cv;

@@ -7,6 +7,7 @@
 #include<boost/filesystem.hpp>
 #include "opencv2/highgui.hpp"
 #include "opencv2/core.hpp"
+#include "zxing_decode.hpp"
 
 
 using namespace std;
@@ -59,7 +60,7 @@ void CV_BARCODE_LOCALIZETest::run (int)
 	vector<string> dataset_paths;
 	dataset_paths.push_back("/home/diggy/git/opencv_extra/testdata/cv/barcode1D_dataset/zxing/zxing-2.2/core/test/data/blackbox/upca-1");
 
-	CvPoint P1;
+//	CvPoint P1;
 	for (int i = 0; i < dataset_paths.size (); i++)
 	{
 		cout << dataset_paths[i] << endl;
@@ -109,6 +110,15 @@ void CV_BARCODE_LOCALIZETest::run (int)
 					float y1 = zx_pts[0].y;
 					float x2 = zx_pts[1].x;
 					float y2 = zx_pts[1].y;
+					
+					//decide the threshold distance
+					float threshold_dist = 10.0;
+					
+					//
+			//		float left_dist = min_dist(x1,y1,gt_points);
+			//		float right_dist = min_dist(x2,y2,gt_points);
+
+
 					float lenth = sqrt((x2-x1)*(x2-x1) + ((y2-y1)*(y2-y1)));
 					float norm_x = (x2-x1)/lenth;
 					float norm_y = (y2-y1)/lenth;
@@ -154,7 +164,7 @@ void CV_BARCODE_LOCALIZETest::run (int)
 			}
 		}
 		else
-			cout << "PATH: " << dataset_paths (i) << " does not exist" << endl;
+			cout << "PATH: " << dataset_paths[i] << " does not exist" << endl;
 	}
 
 	cout << "Done " << endl;
