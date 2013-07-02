@@ -36,6 +36,11 @@ string basename (string const &pathname)
 	return temp;
 }
 
+/*float min_dist(float x,float y,vector<vector<Point> > points,int index)
+{
+	
+}*/
+
 class CV_BARCODE_LOCALIZETest:public cvtest::BaseTest
 {
 	public:
@@ -111,13 +116,13 @@ void CV_BARCODE_LOCALIZETest::run (int)
 					float x2 = zx_pts[1].x;
 					float y2 = zx_pts[1].y;
 					
-					//decide the threshold distance
+					//decide the threshold distance and normalise it based on the resolution of the image.
 					float threshold_dist = 10.0;
 					
 					//
-			//		float left_dist = min_dist(x1,y1,gt_points);
-			//		float right_dist = min_dist(x2,y2,gt_points);
-
+//					float left_dist = min_dist(x1,y1,gt_points,0);	// 0 for the edge 0->2
+//					float right_dist = min_dist(x2,y2,gt_points,1);	// 1 for the edge 1->3
+					
 
 					float lenth = sqrt((x2-x1)*(x2-x1) + ((y2-y1)*(y2-y1)));
 					float norm_x = (x2-x1)/lenth;

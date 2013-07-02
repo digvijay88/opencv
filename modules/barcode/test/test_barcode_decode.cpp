@@ -16,6 +16,8 @@ using namespace boost::filesystem;
 
 using namespace zxing;
 
+typedef vector<path> vec_P;
+
 class CV_BARCODE_DECODETest : public cvtest::BaseTest
 {
 	public:
@@ -36,10 +38,10 @@ void CV_BARCODE_DECODETest::run(int)
 
 	for (int i = 0; i < dataset_paths.size (); i++)
 	{
-		path p = dataset_paths (i).c_str ();
+		path p = dataset_paths[i].c_str ();
 		if (exists (p))
 		{
-			path GT = dataset_paths (i) + "/gt/";
+			path GT = dataset_paths[i] + "/gt/";
 
 			vec_P images_path;
 			vec_P gt_path;
