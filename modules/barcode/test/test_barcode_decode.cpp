@@ -56,14 +56,14 @@ void CV_BARCODE_DECODETest::run(int)
 				{
 					//decode the image and store the string output
 					MultiFormatReader mf;
-					Mat img = imread(temp_st,CV_LOAD_IMAGE_GRAYSCALE);
+					Mat img = imread(temp_st,IMREAD_GRAYSCALE);
 					string decode_out;
 					vector<Point> zx_pts;
 					decode_image(&mf,img ,decode_out,zx_pts);
 				
 					//read the GT						
 					string temp_gt = it_gt->string();
-					FileStorage fs(temp_gt,FILESTORAGE::READ);
+					FileStorage fs(temp_gt,FileStorage::READ);
 					string gt_out;
 					fs["decode_out"] >> gt_out;
 					fs.release();

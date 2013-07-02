@@ -36,10 +36,14 @@ string basename (string const &pathname)
 	return temp;
 }
 
-/*float min_dist(float x,float y,vector<vector<Point> > points,int index)
+float min_dist(float x,float y,vector<Point> points,int index)
 {
-	
-}*/
+	if(index == 0)		//0 index corresponds to 0->2 edge
+		cout <<"sdf";
+	else			//1 index corresponds to 1->3 edge
+		cout <<"SDF";
+	return 1;
+}
 
 class CV_BARCODE_LOCALIZETest:public cvtest::BaseTest
 {
@@ -87,7 +91,7 @@ void CV_BARCODE_LOCALIZETest::run (int)
 				{
 					//got the image, now decode it using the function decode_image
 					MultiFormatReader mf;
-					Mat img = imread(temp_st,CV_LOAD_IMAGE_GRAYSCALE);
+					Mat img = imread(temp_st,IMREAD_GRAYSCALE);
 					string decode_out;
 					vector<Point> zx_pts;
 					decode_image(&mf,img ,decode_out,zx_pts);
@@ -99,6 +103,8 @@ void CV_BARCODE_LOCALIZETest::run (int)
 					vector<vector<Point> > gt_points;
 					fs["corner_points"] >> gt_points;
 					fs.release();
+					cout << gt_points.size() << endl;
+
 					if(gt_points.size() != 4)
 					{
 						cout << "There is some error in the ground truth of FILE: " << temp_gt << endl;
@@ -119,11 +125,19 @@ void CV_BARCODE_LOCALIZETest::run (int)
 					//decide the threshold distance and normalise it based on the resolution of the image.
 					float threshold_dist = 10.0;
 					
-					//
-//					float left_dist = min_dist(x1,y1,gt_points,0);	// 0 for the edge 0->2
-//					float right_dist = min_dist(x2,y2,gt_points,1);	// 1 for the edge 1->3
-					
+					float left_dist = min_dist(x1,y1,gt_points[0],0);	//0 means the edge 0->2
+					float right_dist = min_dist(x1,y1,gt_points[0],1); //1 means the edge 1->3
+					if(right_dist < left_dist)
+					{
+						left_dist = right_dist;
+						right_dist = min_dist(x2,y2,gt_points[0],0);
+					}
+					else
+						right_dist = min_dist(x2,y2,gt_points[0],1);
 
+						
+					
+/*
 					float lenth = sqrt((x2-x1)*(x2-x1) + ((y2-y1)*(y2-y1)));
 					float norm_x = (x2-x1)/lenth;
 					float norm_y = (y2-y1)/lenth;
@@ -137,7 +151,7 @@ void CV_BARCODE_LOCALIZETest::run (int)
 						// the check will go like, 1->2, 2->3, 3->4 , 4->1
 
 						//need to do this swap, because of the way points are stored in the ground truth
-						swap(gt_points[2].x,gt_points[3].x);
+						swap(gt_points[0][2].x,gt_points[3].x);
 						swap(gt_points[2].y,gt_points[3].y);
 
 						//checking the cross product 
@@ -163,7 +177,7 @@ void CV_BARCODE_LOCALIZETest::run (int)
 					//Condition #2: The two points given by the zxing result will draw a scan line across the barcode.
 					//The points will lie closes to either the edge 1->4 or 2->3. If it is true, then it will PASS
 					// this additional test.
-					// Is this really necessary? Probably some other test.	
+					// Is this really necessary? Probably some other test.	*/
 				}
 				it_gt++;
 			}
