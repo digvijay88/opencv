@@ -34,7 +34,10 @@ CV_BARCODE_DECODETest::~CV_BARCODE_DECODETest() {}
 void CV_BARCODE_DECODETest::run(int)
 {
 	vector<string> dataset_paths;
-	dataset_paths.push_back("/home/diggy/git/opencv_extra/testdata/cv/barcode1D_dataset/zxing/zxing-2.2/core/test/data/blackbox/upca-1");
+	string dir_name = "zxing/zxing-2.2/core/test/data/blackbox/upca-1";
+	string dir_path = ts->get_data_path();
+	dataset_paths.push_back(dir_path);
+//	dataset_paths.push_back("/home/diggy/git/opencv_extra/testdata/cv/barcode1D_dataset/zxing/zxing-2.2/core/test/data/blackbox/upca-1");
 
 	for (int i = 0; i < dataset_paths.size (); i++)
 	{

@@ -74,8 +74,8 @@ void CV_BARCODE_LOCALIZETest::run (int)
 
 	vector<string> dataset_paths;
 	string dir_name = "zxing/zxing-2.2/core/test/data/blackbox/upca-1";
-	string dir_path = ts->get_data_path();
-	dataset_paths.push_back(dir_path + dir_name);
+	string dir_path = ts->get_data_path(), dir_name;
+	dataset_paths.push_back(dir_path);
 	//	dataset_paths.push_back("/home/diggy/git/opencv_extra/testdata/cv/barcode1D_dataset/zxing/zxing-2.2/core/test/data/blackbox/upca-1");
 
 	for (int i = 0; i < dataset_paths.size (); i++)
@@ -103,8 +103,6 @@ void CV_BARCODE_LOCALIZETest::run (int)
 					string decode_out;
 					vector<Point> zx_pts;
 					decode_image(&mf,img ,decode_out,zx_pts);
-					//TO BE ADDED: if decoding fails.
-
 
 					//read the GT for the same image
 					string temp_gt = it_gt->string();
@@ -152,6 +150,49 @@ void CV_BARCODE_LOCALIZETest::run (int)
 
 					EXPECT_LT(left_dist,barcode_thresh);
 					EXPECT_LT(right_dist,barcode_thresh);
+
+
+					/*
+					   float lenth = sqrt((x2-x1)*(x2-x1) + ((y2-y1)*(y2-y1)));
+					   float norm_x = (x2-x1)/lenth;
+					   float norm_y = (y2-y1)/lenth;
+					   int pnts_count = 0;		// if this is greater than or equal to 8, then PASS
+					   for(int j=0;j < 10;j++)
+					   {
+					   int new_x = (int)(x1 + (norm_x*lenth*j)/9.0);
+					   int new_y = (int)(y1 + (norm_y*lenth*j)/9.0);
+
+					//check if the new coordinate is inside the quadrilateral or not.
+					// the check will go like, 1->2, 2->3, 3->4 , 4->1
+
+					//need to do this swap, because of the way points are stored in the ground truth
+					swap(gt_points[0][2].x,gt_points[3].x);
+					swap(gt_points[2].y,gt_points[3].y);
+
+					//checking the cross product 
+					vector<int> cross_p;
+					for(int k=0;k<4;k++)
+					cross_p.push_back((int)(((new_x-gt_points[k].x)*(gt_points[(k+1)%4].y-gt_points[k].y)) - ((gt_points[(k+1)%4].x-gt_points[k].x)*(new_y-gt_points[k].y))));
+
+					//checking if all the cross products are of the same sign or not.
+					int flag = 0;
+					for(int k=0;k<4;k++)
+					if(cross_p[k]*cross_p[(k+1)%4] < 0)
+					flag = 1;
+
+					if(flag == 0)
+					pnts_count++;
+					}
+
+					EXPECT_GE(pnts_count,8);	
+
+					if(pnts_count < 8)
+					continue;
+
+					//Condition #2: The two points given by the zxing result will draw a scan line across the barcode.
+					//The points will lie closes to either the edge 1->4 or 2->3. If it is true, then it will PASS
+					// this additional test.
+					// Is this really necessary? Probably some other test.	*/
 				}
 				it_gt++;
 			}
