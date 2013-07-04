@@ -5,3 +5,4 @@ if(NOT OPENCV_MODULES_PATH)
 endif()
 
 ocv_glob_modules(${OPENCV_MODULES_PATH})
+
