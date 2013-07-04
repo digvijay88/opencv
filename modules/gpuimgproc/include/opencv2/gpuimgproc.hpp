@@ -47,7 +47,7 @@
 #  error gpuimgproc.hpp header must be compiled as C++
 #endif
 
-#include "opencv2/core/gpumat.hpp"
+#include "opencv2/core/gpu.hpp"
 #include "opencv2/core/base.hpp"
 #include "opencv2/imgproc.hpp"
 #include "opencv2/gpufilters.hpp"
@@ -158,7 +158,7 @@ struct CV_EXPORTS CannyBuf
     GpuMat mag;
     GpuMat map;
     GpuMat st1, st2;
-    Ptr<FilterEngine_GPU> filterDX, filterDY;
+    Ptr<Filter> filterDX, filterDY;
 };
 
 CV_EXPORTS void Canny(const GpuMat& image, GpuMat& edges, double low_thresh, double high_thresh, int apperture_size = 3, bool L2gradient = false);
