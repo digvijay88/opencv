@@ -75,6 +75,6 @@ class OpenCVBitmapSource : public LuminanceSource
 
 
 //This is your barcode reader call to Zxing C++ version
-void decode_image(Reader *reader, cv::Mat &image, std::string &bar_read, vector<Point> &pts);
+CV_EXPORTS void decode_image(Reader *reader, cv::Mat &image, std::string &bar_read, vector<Point> &pts);
 
 #endif
