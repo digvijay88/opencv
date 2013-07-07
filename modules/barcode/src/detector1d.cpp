@@ -47,6 +47,61 @@
 
 #include "precomp.hpp"
 
+class OpenCVBitmapSource : public LuminanceSource
+{
+private:
+  cv::Mat m_pImage;
+
+public:
+  OpenCVBitmapSource(cv::Mat &image) : LuminanceSource(image.cols, image.rows)
+  {
+    m_pImage = image.clone();
+  }
+
+  ~OpenCVBitmapSource()
+  {
+  }
+
+  int getWidth() const { return m_pImage.cols; }
+  int getHeight() const { return m_pImage.rows; }
+
+  ArrayRef<char> getRow(int y, ArrayRef<char> row) const
+  {
+    int width_ = getWidth();
+    if (!row)
+      row = ArrayRef<char>(width_);
+
+    const char *p = m_pImage.ptr<char>(y);
+    for(int x = 0; x<width_; ++x, ++p)
+      row[x] = *p;
+    return row;
+  }
+
+  ArrayRef<char> getMatrix() const
+  {
+    int width_ = getWidth();
+    int height_ =  getHeight();
+    ArrayRef<char> matrix = ArrayRef<char>(width_*height_);
+    for (int y = 0; y < height_; ++y)
+    {
+      const char *p = m_pImage.ptr<char>(y);
+      for(int x = 0; x < width_; ++x, ++p)
+      {
+        matrix[y*width_ + x] = *p;
+      }
+    }
+    return matrix;
+  }
+                    /*
+                    // The following methods are not supported by this demo (the DataMatrix Reader doesn't call these methods)
+                    bool isCropSupported() const { return false; }
+                    Ref<LuminanceSource> crop(int left, int top, int width, int height) {}
+                    bool isRotateSupported() const { return false; }
+                    Ref<LuminanceSource> rotateCounterClockwise() {}
+                     */
+};
+
+
 namespace cv
 {
 
@@ -58,8 +113,26 @@ Detector1d::~Detector1d() {
 
 Ptr<Detector1d> Detector1d::create( const std::string& locator_type )
 {
-  (void) locator_type;
+  if(locator_type.find("zxing") == 0)
+  {
+    return Algorithm::create<Detector1d> ("Detector1d.locate." + locator_type);
+  }
+  //  (void) locator_type;
   return NULL;
+}
+
+void locate(const Mat& image, std::vector<RotatedRect>& barcodes)
+{
+  MultiFormatReader reader;
+  Mat image_gray;
+  cvtColor(image,image_gray,CV_BGR2GRAY);
+  Ref<OpenCVBitmapSource> source(new OpenCVBitmapSource(image_gray));
+  Ref<Binarizer> binarizer(new GlobalHistogramBinarizer(source));
+  Ref<BinaryBitmap> bitmap(new BinaryBitmap(binarizer));
+
+  Ref<Result> result(reader->decode(bitmap, DecodeHints(DecodeHints::TRYHARDER_HINT)));
+  ArrayRef< Ref<ResultPoint> >& points (result->getResultPoints());
+
 }
 
 }
