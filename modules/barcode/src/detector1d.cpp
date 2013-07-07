@@ -121,7 +121,7 @@ Ptr<Detector1d> Detector1d::create( const std::string& locator_type )
   return NULL;
 }
 
-void locate(const Mat& image, std::vector<RotatedRect>& barcodes)
+void Detector1d::locate(const Mat& image, std::vector<RotatedRect>& barcodes)
 {
   MultiFormatReader reader;
   Mat image_gray;
