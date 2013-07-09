@@ -115,7 +115,7 @@ Ptr<Detector1d> Detector1d::create( const std::string& locator_type )
 {
   if(locator_type.find("zxing") == 0)
   {
-    return Algorithm::create<Detector1d> ("Detector1d.locate." + locator_type);
+    return Algorithm::create<Detector1d> ("Detector1d." + locator_type);
   }
   //  (void) locator_type;
   return NULL;
