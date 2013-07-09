@@ -86,12 +86,32 @@ class CV_EXPORTS_W Decoder1d : public virtual Algorithm
   std::vector<int> decoded_digit;//indexes of decoded digit
 };
 
+// Base class for detection and decoding
 class CV_EXPORTS_W Barcode1D : public Detector1d, public Decoder1d
 {
 public:
-  CV_WRAP_AS(DetectAndDecode) virtual void operator()(/*TODO: add here*/) const = 0;
-  
-}
+  CV_WRAP_AS(DetectAndDecode) virtual void operator()(InputArray image, CV_OUT std::vector<RotatedRect>& barcodes,/*TODO: add here*/) const = 0;
+ 
+  CV_WRAP static Ptr<Barcode1D> create(const std::string& type_name);
+};
+
+
+/// ZXING
+class CV_EXPORTS_W ZXING_WRAP : public Barcode1D
+{
+public:
+  virtual ~ZXING_WRAP();
+
+  //detect
+  void operator() (InputArray image, std::vector<RotatedRect>& barcodes) const;
+
+  //decode
+  void operator() (InputArray image, /*To be added*/) const;
+
+  Algorithm* info() const;
+
+};
+
 
 }
 }
