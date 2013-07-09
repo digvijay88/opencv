@@ -56,6 +56,8 @@ namespace cv {
 
 namespace barcode {
 
+CV_EXPORTS bool initModule_barcode1d();
+
 class CV_EXPORTS_W Detector1d : public virtual Algorithm{
  public:
   //create specific 1D barcode locator
@@ -84,8 +86,17 @@ class CV_EXPORTS_W Decoder1d : public virtual Algorithm
   std::vector<int> decoded_digit;//indexes of decoded digit
 };
 
+class CV_EXPORTS_W Barcode1D : public Detector1d, public Decoder1d
+{
+public:
+  CV_WRAP_AS(DetectAndDecode) virtual void operator()(/*TODO: add here*/) const = 0;
+  
+}
+
 }
 }
+
+
 
 #endif /* __OPENCV_BARCODE_1D_HPP__ */
 
