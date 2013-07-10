@@ -34,7 +34,7 @@
 ** (including, but not limited to, procurement of substitute goods or services;
 ** loss of use, data, or profits; or business interruption) however caused
 ** and on any theory of liability, whether in contract, strict liability,
-** or tort (including negligence or otherwise) arising in any way out of
+i** or tort (including negligence or otherwise) arising in any way out of
 ** the use of this software, even if advised of the possibility of such damage.
 **  
 ************************************************************************************************/
@@ -46,6 +46,7 @@
 ************************************************************************************************/
 
 #include "precomp.hpp"
+
 
 class CV_EXPORTS OpenCVBitmapSource : public LuminanceSource
 {
@@ -107,40 +108,56 @@ namespace cv
 
 namespace barcode {
 
-Detector1d::~Detector1d() {
-  // TODO Auto-generated destructor stub
-}
-
-Ptr<Detector1d> Detector1d::create( const std::string& locator_type )
-{
-  if(locator_type.find("zxing") == 0)
-  {
-    return Algorithm::create<Detector1d> ("Detector1d." + locator_type);
-  }
-  //  (void) locator_type;
-  return NULL;
-}
-
 //ZXING_WRAP implementation
 
-void ZXING_WRAP::operator()
+// detect and decode operator
+void ZXING_WRAP::operator()(InputArray _image, std::vector<RotatedRect>& barcodes, 
+		std::vector<Point>& barcode_cpoints, std::string& decode_output,
+		bool useProvidedDetectedRegion=false) const
+{
+  DetectorAndDecodeBarcode(_image, barcodes, barcode_cpoints, decode_output);
+}
 
+//destructor
 ZXING_WRAP::~ZXING_WRAP()
 {
 }
 
-void Detector1d::locate(const Mat& image, std::vector<RotatedRect>& barcodes)
+void ZXING_WRAP::DetectorAndDecodeBarcode(InputArray _image, std::vector<RotatedRect>& barcodes, 
+		std::vector<Point>& barcodes, std::string& decode_output) const
 {
   MultiFormatReader reader;
-  Mat image_gray;
-  cvtColor(image,image_gray,CV_BGR2GRAY);
-  Ref<OpenCVBitmapSource> source(new OpenCVBitmapSource(image_gray));
-  Ref<Binarizer> binarizer(new GlobalHistogramBinarizer(source));
-  Ref<BinaryBitmap> bitmap(new BinaryBitmap(binarizer));
 
-  Ref<Result> result(reader->decode(bitmap, DecodeHints(DecodeHints::TRYHARDER_HINT)));
-  ArrayRef< Ref<ResultPoint> >& points (result->getResultPoints());
+  Mat image = _image.getMat();
+  if(image.type() != CV_8UC1)
+  	cvtColor(_image,image,CV_BGR2GRAY);
+  try
+  {
+    Ref<OpenCVBitmapSource> source(new OpenCVBitmapSource(image));
+    Ref<Binarizer> binarizer(new GlobalHistogramBinarizer(source));
+    Ref<BinaryBitmap> bitmap(new BinaryBitmap(binarizer));
 
+    Ref<Result> result(reader->decode(bitmap, DecodeHints(DecodeHints::TRYHARDER_HINT)));
+  
+    decode_output = result->getText()->getText();
+    ArrayRef< Ref<ResultPoint> >& points (result->getResultPoints());
+  
+    if(points && !points->empty())
+    {
+      for(int i=0;i<points->size();i++)
+      {
+        Point temp_pt;
+        temp_pt.x = points[i]->getX();
+        temp_pt.y = points[i]->getY();
+        barcodes.push_back(temp_pt);
+      }
+    }
+
+  }
+  catch(zxing::Exception& e)
+  {
+    cerr << "Error: " << e.what() << endl;
+  }
 }
 
 }

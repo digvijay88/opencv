@@ -18,23 +18,7 @@ using namespace boost::filesystem;
 
 using namespace zxing;
 
-class CV_BarcodeDetect1DTest : public cvtest::BaseTest
-{
-public:
-  CV_BarcodeDetect1DTest(const Ptr<Detector1D> &_detector) : detector(_detector)
-  {
-  }
-
-protected:
-  virtual void run(int)
-  {
-    cv::initModule_barcode1d();
-    CV_Assert(!detector.empty());
-
-
-  }
-}
-/*typedef vector<path> vec_P;
+typedef vector<path> vec_P;
 
 struct MatchPathSeparator
 {
@@ -181,4 +165,4 @@ void CV_BARCODE_LOCALIZETest::run (int)
 }
 
 
-TEST (LOCALIZE_1DBARCODE, accuracy) {CV_BARCODE_LOCALIZETest test;test.safe_run ();}*/
+TEST (LOCALIZE_1DBARCODE, accuracy) {CV_BARCODE_LOCALIZETest test;test.safe_run ();}
