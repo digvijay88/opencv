@@ -12,7 +12,7 @@ Ptr<Barcode1D> Barcode1D::create(const std::string& locator_type)
 ///Giving AlgorithmInfo for various barcode detectors
 //zxing AlgorithmInfo
 
-CV_INIT_ALGORITHM(ZXING,"Barcode1D.zxing",
+CV_INIT_ALGORITHM(ZXING_WRAP,"Barcode1D.zxing",
 		  obj.info()->addParam(obj,"readerType",obj.readerType)
 		  obj.info()->addParam(obj,"DecodeHints",obj.DecodeHints));
 
@@ -24,7 +24,7 @@ CV_INIT_ALGORITHM(ZXING,"Barcode1D.zxing",
 bool cv::initModule_barcode1d(void)
 {
 	bool all = true;
-	all &= !ZXING_info_auto.name().empty();
+	all &= !ZXING_WRAP_info_auto.name().empty();
 
 	return all;
 }
