@@ -90,11 +90,14 @@ class CV_EXPORTS_W Decoder1d : public virtual Algorithm
 class CV_EXPORTS_W Barcode1D : public Detector1d, public Decoder1d
 {
 public:
-  CV_WRAP_AS(DetectAndDecode) virtual void operator()(InputArray image, CV_OUT std::vector<RotatedRect>& barcodes,/*TODO: add here*/) const = 0;
+  CV_WRAP_AS virtual void operator()(InputArray image, CV_OUT std::vector<RotatedRect>& barcodes, CV_OUT std::vector<Point>& barcode_points/*TODO: add here*/) const = 0;
+  CV_WRAP_AS virtual void operator()(InputArray image, 
+		  	CV_IN_OUT std::vector<RotatedRect>& barcodes, 
+		  	CV_IN_OUT std::string& barcode_cpoints,
+			CV_OUT std::string& decode_output) const = 0;
  
   CV_WRAP static Ptr<Barcode1D> create(const std::string& type_name);
 };
-
 
 /// ZXING
 class CV_EXPORTS_W ZXING_WRAP : public Barcode1D
@@ -102,11 +105,11 @@ class CV_EXPORTS_W ZXING_WRAP : public Barcode1D
 public:
   virtual ~ZXING_WRAP();
 
-  //detect
-  void operator() (InputArray image, std::vector<RotatedRect>& barcodes) const;
+  //detect and decode. Here, last three will be CV_OUT
+  void operator() (InputArray image, std::vector<RotatedRect>& barcodes, std::vector<Point> &barcode_points, std::string& decode_output) const;
 
-  //decode
-  void operator() (InputArray image, /*To be added*/) const;
+  //decode. Here, first three will be CV_IN and last one will be CV_OUT
+  void operator() (InputArray image, std::vector<RotatedRect>& barcodes, std::vector<Point> &barcode_points, std::string& decode_output) const;
 
   Algorithm* info() const;
 
