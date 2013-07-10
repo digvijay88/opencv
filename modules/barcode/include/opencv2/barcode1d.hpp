@@ -90,7 +90,6 @@ class CV_EXPORTS_W Decoder1d : public virtual Algorithm
 class CV_EXPORTS_W Barcode1D : public Detector1d, public Decoder1d
 {
 public:
-  CV_WRAP_AS virtual void operator()(InputArray image, CV_OUT std::vector<RotatedRect>& barcodes, CV_OUT std::vector<Point>& barcode_points/*TODO: add here*/) const = 0;
   CV_WRAP_AS virtual void operator()(InputArray image, 
 		  	CV_IN_OUT std::vector<RotatedRect>& barcodes, 
 		  	CV_IN_OUT std::string& barcode_cpoints,
