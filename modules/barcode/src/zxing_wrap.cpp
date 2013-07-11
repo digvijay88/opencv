@@ -112,12 +112,17 @@ namespace barcode {
 
 // detect and decode operator
 void ZXING_WRAP::operator()(InputArray _image, std::vector<RotatedRect>& barcodes, 
-		std::vector<Point>& barcode_cpoints, std::string& decode_output,
-		bool useProvidedDetectedRegion=false) const
+		std::vector<Point>& barcode_cpoints, std::string& decode_output) const
 {
   DetectorAndDecodeBarcode(_image, barcodes, barcode_cpoints, decode_output);
 }
 
+// decode operator
+void ZXING_WRAP::operator()(InputArray _image, const std::vector<RotatedRect>& barcodes, 
+		const std::vector<Point>& barcode_cpoints, std::string& decode_output) const
+{
+  DetectorAndDecodeBarcode(_image, barcodes, barcode_cpoints, decode_output);
+}
 //destructor
 ZXING_WRAP::~ZXING_WRAP()
 {

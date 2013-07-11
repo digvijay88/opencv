@@ -93,8 +93,7 @@ public:
   CV_WRAP_AS virtual void operator()(InputArray image, 
 		  	CV_IN_OUT std::vector<RotatedRect>& barcodes, 
 		  	CV_IN_OUT std::string& barcode_cpoints,
-			CV_OUT std::string& decode_output
-			bool useProvidedDetectedRegion=false) const = 0;
+			CV_OUT std::string& decode_output) const = 0;
 
   CV_WRAP static Ptr<Barcode1D> create(const std::string& type_name);
 };
@@ -107,9 +106,10 @@ public:
 
   //detect and decode operator. boolean at the end decides whether to use detected region or not
   void operator() (InputArray image, std::vector<RotatedRect>& barcodes, 
-		  std::vector<Point> &barcode_cpoints, std::string& decode_output, 
-		  bool useProvidedDetectedRegion=false) const;
+		  std::vector<Point> &barcode_cpoints, std::string& decode_output) const;
 
+  void operator() (InputArray image,const std::vector<RotatedRect>& barcodes, 
+		  const std::vector<Point> &barcode_cpoints, std::string& decode_output) const;
 
   Algorithm* info() const;
 
