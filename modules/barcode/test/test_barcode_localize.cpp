@@ -30,7 +30,7 @@ public:
 protected:
   virtual void run(int)
   {
-    cv::initModule_barcode1d();
+    cv::initModule_barcode1D();
     CV_Assert(!detector.empty());
 
     //TODO: get all the images

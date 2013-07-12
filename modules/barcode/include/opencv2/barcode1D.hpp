@@ -44,13 +44,87 @@
 ** Authors: Claudia Rapuano (c.rapuano@gmail.com), University La Sapienza di Roma, Rome, Italy  *
 ** 	        Stefano Fabri (s.fabri@email.it), Rome, Italy                                       *
 ************************************************************************************************/
+#ifndef __OPENCV_BARCODE_1D_HPP__
+#define __OPENCV_BARCODE_1D_HPP__
 
-#ifndef __OPENCV_PRECOMP_H__
-#define __OPENCV_PRECOMP_H__
+#include <stdio.h>
+#include <iostream>
 
-#include "opencv2/barcode1D.hpp"
 #include "opencv2/core.hpp"
 
-#include <algorithm>
+namespace cv {
 
-#endif
+namespace barcode {
+
+CV_EXPORTS bool initModule_barcode1D();
+
+class CV_EXPORTS_W Detector1D : public virtual Algorithm{
+ public:
+  //create specific 1D barcode locator
+  CV_WRAP static Ptr<Detector1D> create( const std::string& locator_type );
+  //locate barcodes in image, return related rotated rect
+  virtual void locate(const Mat& image, std::vector<RotatedRect>& barcodes) = 0;
+  virtual ~Detector1D();
+};
+
+class CV_EXPORTS_W Decoder1D : public virtual Algorithm
+{
+ public:
+  //create the specific barcode decoder
+  CV_WRAP static Ptr<Decoder1D> create( const std::string& decoder_type);
+
+  /* This method returns the string of decoded barcode, here is implemented the decoding algorithm
+   * it matches the pixels of barcode with the symbols of symbology and takes a vector that represents 
+   * the indexes of found symbols. 
+   * this vector is then decoded by getDecoding of Symbology class.
+   */
+  virtual std::string decodeBarcode() = 0;
+  virtual ~Decoder1D();
+ protected:
+  Mat barcode;//ROI barcode
+  int length;//we can set number of digit in barcode
+  std::vector<int> decoded_digit;//indexes of decoded digit
+};
+
+// Base class for detection and decoding
+class CV_EXPORTS_W Barcode1D : public Detector1D, public Decoder1D
+{
+public:
+  CV_WRAP_AS virtual void operator()(InputArray image, 
+		  	CV_IN_OUT std::vector<RotatedRect>& barcodes, 
+		  	CV_IN_OUT std::string& barcode_cpoints,
+			CV_OUT std::string& decode_output) const = 0;
+
+  CV_WRAP static Ptr<Barcode1D> create(const std::string& type_name);
+};
+
+/// ZXING
+class CV_EXPORTS_W ZXING_WRAP : public Barcode1D
+{
+public:
+  virtual ~ZXING_WRAP();
+
+  //detect and decode operator. boolean at the end decides whether to use detected region or not
+  void operator() (InputArray image, std::vector<RotatedRect>& barcodes, 
+		  std::vector<Point> &barcode_cpoints, std::string& decode_output) const;
+
+  void operator() (InputArray image,const std::vector<RotatedRect>& barcodes, 
+		  const std::vector<Point> &barcode_cpoints, std::string& decode_output) const;
+
+  Algorithm* info() const;
+
+protected:
+
+  void DetectAndDecodeBarcode(InputArray image, std::vector<RotatedRect>& barcodes,
+		  	std::vector<Point>& barcode_cpoints,std::string& decode_output);
+
+};
+
+
+}
+}
+
+
+
+#endif /* __OPENCV_BARCODE_1D_HPP__ */
+
