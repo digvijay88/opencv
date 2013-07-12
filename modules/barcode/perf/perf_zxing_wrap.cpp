@@ -15,6 +15,8 @@ vector<string> image_paths;
 
 void loadImagePaths(vector<string> &image_paths, const string& dir_name);
 
+
+// Regression test for detection
 PERF_TEST_P(barcode_zxing_wrap,detect,testing::Values(image_paths))
 {
   string img_name = getDataPath(GetParam());
@@ -22,9 +24,6 @@ PERF_TEST_P(barcode_zxing_wrap,detect,testing::Values(image_paths))
 
   if(image.empty())
     FAIL() << "Unable to load image file: " << img_name;
-
-  Ptr<Detector1D> dt = Algorithm::create<Detector1D> ("Barcode1D.ZXING_WRAP");	
-  ASSERT_FALSE(fd.empty());
 
   vector<RotatedRect> barcode_rect;
   vector<Point> barcode_cpoints;
@@ -35,7 +34,27 @@ PERF_TEST_P(barcode_zxing_wrap,detect,testing::Values(image_paths))
   TEST_CYCLE() detector(image,barcode_rect,barcode_cpoints,decode_output);
 
   SANITY_CHECK(barcode_cpoints);
-//  SANITY_CHECK(decode_output);
+}
+
+
+// Regression test for decoding
+PERF_TEST_P(barcode_zxing_wrap,decode,testing::Values(image_paths))
+{
+  string img_name = getDataPath(GetParam());
+  Mat image = imread(img_name,IMREAD_GRAYSCALE);
+
+  if(image.empty())
+    FAIL() << "Unable to load image file: " << img_name;
+
+  vector<RotatedRect> barcode_rect;
+  vector<Point> barcode_cpoints;
+  string decode_output;
+
+  ZXING_WRAP decoder;
+
+  TEST_CYCLE() decoder(image,barcode_rect,barcode_cpoints,decode_output);
+
+  SANITY_CHECK(decode_output);
 }
 
 
