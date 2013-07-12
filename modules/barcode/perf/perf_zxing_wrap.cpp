@@ -23,15 +23,19 @@ PERF_TEST_P(barcode_zxing_wrap,detect,testing::Values(image_paths))
   if(image.empty())
     FAIL() << "Unable to load image file: " << img_name;
 
-  Ptr<Detector1D> dt = Algorithm::create<Detector1D>("Barcode1D.ZXING_WRAP");
-
-  ASSERT_FALSE(dt.empty());
+  Ptr<Detector1D> dt = Algorithm::create<Detector1D> ("Barcode1D.ZXING_WRAP");	
+  ASSERT_FALSE(fd.empty());
 
   vector<RotatedRect> barcode_rect;
   vector<Point> barcode_cpoints;
   string decode_output;
 
-//  TEST_CYCLE() dt->Detect
+  ZXING_WRAP detector;
+
+  TEST_CYCLE() detector(image,barcode_rect,barcode_cpoints,decode_output);
+
+  SANITY_CHECK(barcode_cpoints);
+//  SANITY_CHECK(decode_output);
 }
 
 
