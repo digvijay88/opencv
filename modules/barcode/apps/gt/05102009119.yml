@@ -1,0 +1,7 @@
+%YAML:1.0
+barcode_present: 1
+barcode_format:
+   - [ ean13 ]
+decode_out: [ [ "4902520242204" ] ]
+corner_points:
+   - [ [ 1070, 722 ], [ 691, 912 ], [ 939, 451 ], [ 555, 638 ] ]

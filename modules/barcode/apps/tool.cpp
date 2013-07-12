@@ -84,6 +84,8 @@ int decide_directory(path p)
 		return 3;
 	else if(string::npos != temp.find("zxing"))
 		return 4;
+	else if(string::npos != temp.find("artelab"))
+		return 5;
 	else
 		return 0;
 }
@@ -122,7 +124,7 @@ int main(int argc,char *argv[])
 				string temp = it->string();
 				//				cout << temp << endl;
 				//				cout << basename(temp) << endl;
-				if(temp.compare(temp.size()-4,4,".png") == 0 || temp.compare(temp.size()-4,4,".jpg") == 0)
+				if(temp.compare(temp.size()-4,4,".png")==0 || temp.compare(temp.size()-4,4,".jpg")==0 || temp.compare(temp.size()-4,4,".JPG")==0)
 				{
 					cout << temp << endl;
 					string f_name;
@@ -165,12 +167,6 @@ int main(int argc,char *argv[])
 					{
 						f_name = "./gt/" + basename(temp) + ".yml";
 						cout << "Filename is " << f_name << endl;
-						//						if(flgg == 0)
-						//						{
-						//							if(basename(temp) == "5")
-						//								flgg = 1;
-						//							continue;
-						//						}
 
 						string inStr = temp.substr(0,temp.size()-3) + "txt";
 						cout << inStr << endl;
@@ -183,6 +179,30 @@ int main(int argc,char *argv[])
 						decode_out.push_back(one_line);
 						barcode_format.push_back(format_temp);
 						barcode_present = true;
+					}
+					else if(dir_flag == 5)
+					{
+						//						if(flgg == 0)
+						//						{
+						//							if(basename(temp) == "06102009250")
+						//								flgg = 1;
+						//							continue;
+						//						}
+						f_name = "./gt/" + basename(temp) + ".yml";
+						cout << "Output file name is " << f_name << endl;
+
+						string inStr = temp + ".txt";
+						cout << "Input file name is " << inStr << endl;
+						ifstream inFile;
+						inFile.open(inStr.c_str());
+						string one_line;
+						getline(inFile,one_line);
+						cout << one_line << endl;
+						inFile.close();
+						decode_out.push_back(one_line);
+
+						barcode_present = true;
+						barcode_format.push_back("ean13");
 					}
 					else
 					{
@@ -206,7 +226,7 @@ int main(int argc,char *argv[])
 					for(int i=0;i < decode_out.size();i++)
 						fs << "[:" << decode_out[i] << "]";
 					fs << "]";
-
+					cout << corner_points[0].size() << " ******************* " << corner_points[0].size() << endl;
 					fs << "corner_points" << "[";
 					for(int i=0;i < corner_points.size();i++)
 					{

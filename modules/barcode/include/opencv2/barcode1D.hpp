@@ -90,12 +90,12 @@ class CV_EXPORTS_W Decoder1D : public virtual Algorithm
 class CV_EXPORTS_W Barcode1D : public Detector1D, public Decoder1D
 {
 public:
-  CV_WRAP_AS virtual void operator()(InputArray image, 
+  CV_WRAP virtual void operator()(InputArray image, 
 		  	CV_IN_OUT std::vector<RotatedRect>& barcodes, 
 		  	CV_IN_OUT std::string& barcode_cpoints,
 			CV_OUT std::string& decode_output) const = 0;
 
-  CV_WRAP static Ptr<Barcode1D> create(const std::string& type_name);
+  CV_WRAP static Ptr<Barcode1D> create(const String& type_name);
 };
 
 /// ZXING
@@ -104,6 +104,8 @@ class CV_EXPORTS_W ZXING_WRAP : public Barcode1D
 public:
   virtual ~ZXING_WRAP();
 
+//  CV_WRAP explicit ZXING_WRAP();
+
   //detect and decode operator. boolean at the end decides whether to use detected region or not
   void operator() (InputArray image, std::vector<RotatedRect>& barcodes, 
 		  std::vector<Point> &barcode_cpoints, std::string& decode_output) const;
@@ -111,7 +113,7 @@ public:
   void operator() (InputArray image,const std::vector<RotatedRect>& barcodes, 
 		  const std::vector<Point> &barcode_cpoints, std::string& decode_output) const;
 
-  Algorithm* info() const;
+  AlgorithmInfo* info() const;
 
 protected:
 
