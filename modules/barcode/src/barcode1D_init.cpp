@@ -14,7 +14,7 @@ Ptr<Barcode1D> Barcode1D::create(const String& locator_type)
 
 CV_INIT_ALGORITHM(ZXING_WRAP, "Barcode1D.ZXING_WRAP",
 //		  obj.info()->addParam(obj,"readerType",obj.readerType);
-		  obj.info()->addParam(obj,"DecodeHints",obj.DecodeHints));
+		  obj.info()->addParam(obj,"decode_hints",obj.decode_hints));
 
 
 //Decoder

@@ -119,6 +119,7 @@ int main(int argc,char *argv[])
 			}
 			cout << dir_flag << endl;
 			int flgg = 0;
+			int index = 1;
 			for (vec::const_iterator it (v.begin()); it != v.end(); ++it)
 			{
 				string temp = it->string();
@@ -126,6 +127,8 @@ int main(int argc,char *argv[])
 				//				cout << basename(temp) << endl;
 				if(temp.compare(temp.size()-4,4,".png")==0 || temp.compare(temp.size()-4,4,".jpg")==0 || temp.compare(temp.size()-4,4,".JPG")==0)
 				{
+					cout << index << " Out of " << v.size() << endl;
+					index++;
 					cout << temp << endl;
 					string f_name;
 					bool barcode_present;
@@ -182,12 +185,12 @@ int main(int argc,char *argv[])
 					}
 					else if(dir_flag == 5)
 					{
-						//						if(flgg == 0)
-						//						{
-						//							if(basename(temp) == "06102009250")
-						//								flgg = 1;
-						//							continue;
-						//						}
+											//	if(flgg == 0)
+											//	{
+											//		if(basename(temp) == "Foto(507)")
+											//			flgg = 1;
+											//		continue;
+											//	}
 						f_name = "./gt/" + basename(temp) + ".yml";
 						cout << "Output file name is " << f_name << endl;
 

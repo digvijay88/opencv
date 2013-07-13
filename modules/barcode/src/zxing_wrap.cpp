@@ -46,6 +46,7 @@ i** or tort (including negligence or otherwise) arising in any way out of
 ************************************************************************************************/
 
 #include "precomp.hpp"
+#include <zxing/DecodeHints.h>
 
 
 class CV_EXPORTS OpenCVBitmapSource : public LuminanceSource
@@ -109,6 +110,10 @@ namespace cv
 namespace barcode {
 
 //ZXING_WRAP implementation
+
+ZXING_WRAP::ZXING_WRAP(zxing::DecodeHintType _decode_hints) : 
+	decode_hints(_decode_hints)
+{}
 
 // detect and decode operator
 void ZXING_WRAP::operator()(InputArray _image, std::vector<RotatedRect>& barcodes, 

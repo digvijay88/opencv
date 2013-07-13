@@ -51,6 +51,8 @@
 #include <iostream>
 
 #include "opencv2/core.hpp"
+#include <zxing/DecodeHints.h>
+
 
 namespace cv {
 
@@ -102,9 +104,9 @@ public:
 class CV_EXPORTS_W ZXING_WRAP : public Barcode1D
 {
 public:
+  CV_WRAP explicit ZXING_WRAP(zxing::DecodeHintType decode_hints = zxing::DecodeHints::TRYHARDER_HINT);
+  
   virtual ~ZXING_WRAP();
-
-//  CV_WRAP explicit ZXING_WRAP();
 
   //detect and decode operator. boolean at the end decides whether to use detected region or not
   void operator() (InputArray image, std::vector<RotatedRect>& barcodes, 

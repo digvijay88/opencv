@@ -59,6 +59,7 @@ Decoder1D::~Decoder1D() {
 
 Ptr<Decoder1D> Decoder1D::create( const std::string& decoder_type)
 {
+//	return Algorithm::create<Decoder1D>("Barcode1D." + decoder_type);
 	(void) decoder_type;
 	return NULL;
 }

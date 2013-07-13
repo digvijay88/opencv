@@ -51,6 +51,9 @@
 #include "opencv2/barcode1D.hpp"
 #include "opencv2/core.hpp"
 
+#include "opencv2/core/utility.hpp"
+#include "opencv2/core/private.hpp"
+
 #include <algorithm>
 
 #endif

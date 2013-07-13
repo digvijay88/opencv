@@ -58,6 +58,7 @@ Detector1D::~Detector1D() {
 
 Ptr<Detector1D> Detector1D::create( const std::string& locator_type )
 {
+//	return Algorithm::create<Detector1D>("Barcode1D." + locator_type);
   (void) locator_type;
   return NULL;
 }
