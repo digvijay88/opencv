@@ -65,7 +65,7 @@ class CV_EXPORTS_W Detector1D : public virtual Algorithm{
   //create specific 1D barcode locator
   CV_WRAP static Ptr<Detector1D> create( const std::string& locator_type );
   //locate barcodes in image, return related rotated rect
-  virtual void locate(const Mat& image, std::vector<RotatedRect>& barcodes) = 0;
+//  virtual void locate(const Mat& image, std::vector<RotatedRect>& barcodes) = 0;
   virtual ~Detector1D();
 };
 
@@ -80,7 +80,7 @@ class CV_EXPORTS_W Decoder1D : public virtual Algorithm
    * the indexes of found symbols. 
    * this vector is then decoded by getDecoding of Symbology class.
    */
-  virtual std::string decodeBarcode() = 0;
+//  virtual std::string decodeBarcode() = 0;
   virtual ~Decoder1D();
  protected:
   Mat barcode;//ROI barcode
@@ -103,7 +103,8 @@ public:
 /// ZXING
 class CV_EXPORTS_W ZXING_WRAP : public Barcode1D
 {
-public:
+public:  
+
   CV_WRAP explicit ZXING_WRAP(zxing::DecodeHintType decode_hints = zxing::DecodeHints::TRYHARDER_HINT);
   
   virtual ~ZXING_WRAP();
@@ -122,6 +123,7 @@ protected:
   void DetectAndDecodeBarcode(InputArray image, std::vector<RotatedRect>& barcodes,
 		  	std::vector<Point>& barcode_cpoints,std::string& decode_output);
 
+  CV_PROP_RW zxing::DecodeHintType decode_hints;
 };
 
 

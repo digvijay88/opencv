@@ -44,7 +44,7 @@
 ** Authors: Claudia Rapuano (c.rapuano@gmail.com), University La Sapienza di Roma, Rome, Italy  *
 ** 	        Stefano Fabri (s.fabri@email.it), Rome, Italy                                       *
 ************************************************************************************************/
-
+/*
 #include "precomp.hpp"
 
 class OpenCVBitmapSource : public LuminanceSource
@@ -92,13 +92,13 @@ public:
     }
     return matrix;
   }
-                    /*
+                    
                     // The following methods are not supported by this demo (the DataMatrix Reader doesn't call these methods)
                     bool isCropSupported() const { return false; }
                     Ref<LuminanceSource> crop(int left, int top, int width, int height) {}
                     bool isRotateSupported() const { return false; }
                     Ref<LuminanceSource> rotateCounterClockwise() {}
-                     */
+                     
 };
 
 
@@ -136,4 +136,4 @@ void Detector1D::locate(const Mat& image, std::vector<RotatedRect>& barcodes)
 }
 
 }
-}
+}*/

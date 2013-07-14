@@ -47,7 +47,19 @@ i** or tort (including negligence or otherwise) arising in any way out of
 
 #include "precomp.hpp"
 #include <zxing/DecodeHints.h>
+#include <cstdio>
+#include <iostream>
+#include <fstream>
 
+using namespace std;
+
+#include <zxing/LuminanceSource.h>
+#include <zxing/MultiFormatReader.h>
+#include <zxing/common/GlobalHistogramBinarizer.h>
+#include <zxing/Exception.h>
+#include <zxing/DecodeHints.h>
+    
+using namespace zxing;
 
 class CV_EXPORTS OpenCVBitmapSource : public LuminanceSource
 {
