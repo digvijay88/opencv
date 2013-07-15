@@ -94,7 +94,7 @@ class CV_EXPORTS_W Barcode1D : public Detector1D, public Decoder1D
 public:
   CV_WRAP virtual void operator()(InputArray image, 
 		  	CV_IN_OUT std::vector<RotatedRect>& barcodes, 
-		  	CV_IN_OUT std::string& barcode_cpoints,
+		  	CV_IN_OUT std::vector<Point> & barcode_cpoints,
 			CV_OUT std::string& decode_output) const = 0;
 
   CV_WRAP static Ptr<Barcode1D> create(const String& type_name);
@@ -120,8 +120,11 @@ public:
 
 protected:
 
-  void DetectorAndDecodeBarcode(InputArray image, std::vector<RotatedRect>& barcodes,
-		  	std::vector<Point>& barcode_cpoints,std::string& decode_output);
+  void DetectAndDecodeBarcode1(InputArray image, std::vector<RotatedRect>& barcodes,
+		  	std::vector<Point>& barcode_cpoints,std::string& decode_output) const;
+
+  void DetectAndDecodeBarcode2(InputArray image,const std::vector<RotatedRect>& barcodes,
+		  	const std::vector<Point>& barcode_cpoints,std::string& decode_output) const;
 
   CV_PROP_RW zxing::DecodeHintType decode_hints;
 };

@@ -131,14 +131,14 @@ ZXING_WRAP::ZXING_WRAP(zxing::DecodeHintType _decode_hints) :
 void ZXING_WRAP::operator()(InputArray _image, std::vector<RotatedRect>& barcodes, 
 		std::vector<Point>& barcode_cpoints, std::string& decode_output) const
 {
-  DetectAndDecodeBarcode(_image, barcodes, barcode_cpoints, decode_output);
+  DetectAndDecodeBarcode1(_image, barcodes, barcode_cpoints, decode_output);
 }
 
 // decode operator
 void ZXING_WRAP::operator()(InputArray _image, const std::vector<RotatedRect>& barcodes, 
 		const std::vector<Point>& barcode_cpoints, std::string& decode_output) const
 {
-  DetectAndDecodeBarcode(_image, barcodes, barcode_cpoints, decode_output);
+  DetectAndDecodeBarcode2(_image, barcodes, barcode_cpoints, decode_output);
 }
 
 //destructor
@@ -146,21 +146,21 @@ ZXING_WRAP::~ZXING_WRAP()
 {
 }
 
-void ZXING_WRAP::DetectAndDecodeBarcode(InputArray _image, std::vector<RotatedRect>& barcodes, 
-		std::vector<Point>& barcodes, std::string& decode_output) const
+void ZXING_WRAP::DetectAndDecodeBarcode1(InputArray _image, std::vector<RotatedRect>& barcode_rect, 
+		std::vector<Point>& barcode_cpoints, std::string& decode_output) const
 {
   MultiFormatReader reader;
 
   Mat image = _image.getMat();
   if(image.type() != CV_8UC1)
-  	cvtColor(_image,image,CV_BGR2GRAY);
+  	cvtColor(_image,image,COLOR_BGR2GRAY);
   try
   {
     Ref<OpenCVBitmapSource> source(new OpenCVBitmapSource(image));
     Ref<Binarizer> binarizer(new GlobalHistogramBinarizer(source));
     Ref<BinaryBitmap> bitmap(new BinaryBitmap(binarizer));
 
-    Ref<Result> result(reader->decode(bitmap, DecodeHints(DecodeHints::TRYHARDER_HINT)));
+    Ref<Result> result(reader.decode(bitmap, DecodeHints(DecodeHints::TRYHARDER_HINT)));
   
     decode_output = result->getText()->getText();
     ArrayRef< Ref<ResultPoint> >& points (result->getResultPoints());
@@ -172,9 +172,34 @@ void ZXING_WRAP::DetectAndDecodeBarcode(InputArray _image, std::vector<RotatedRe
         Point temp_pt;
         temp_pt.x = points[i]->getX();
         temp_pt.y = points[i]->getY();
-        barcodes.push_back(temp_pt);
+        barcode_cpoints.push_back(temp_pt);
       }
     }
+
+  }
+  catch(zxing::Exception& e)
+  {
+    cerr << "Error: " << e.what() << endl;
+  }
+}
+
+void ZXING_WRAP::DetectAndDecodeBarcode2(InputArray _image,const std::vector<RotatedRect>& barcode_rect, 
+		const std::vector<Point>& barcode_cpoints, std::string& decode_output) const
+{
+  MultiFormatReader reader;
+
+  Mat image = _image.getMat();
+  if(image.type() != CV_8UC1)
+  	cvtColor(_image,image,COLOR_BGR2GRAY);
+  try
+  {
+    Ref<OpenCVBitmapSource> source(new OpenCVBitmapSource(image));
+    Ref<Binarizer> binarizer(new GlobalHistogramBinarizer(source));
+    Ref<BinaryBitmap> bitmap(new BinaryBitmap(binarizer));
+
+    Ref<Result> result(reader.decode(bitmap, DecodeHints(DecodeHints::TRYHARDER_HINT)));
+  
+    decode_output = result->getText()->getText();
 
   }
   catch(zxing::Exception& e)

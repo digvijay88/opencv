@@ -33,7 +33,7 @@ protected:
   virtual void run(int)
   {
     initModule_barcode1D();
-    CV_Assert(!detector.empty());
+//    CV_Assert(!detector.empty());
 
     //TODO: get all the images
     string imgName;

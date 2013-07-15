@@ -11,7 +11,7 @@
 
 #include "opencv2/ts.hpp"
 #include "opencv2/imgproc.hpp"
-//#include "opencv2/features2d.hpp"
+#include "opencv2/barcode1D.hpp"
 #include "opencv2/highgui.hpp"
 #include <iostream>
 
