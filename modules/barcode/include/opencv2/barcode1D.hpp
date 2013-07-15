@@ -120,7 +120,7 @@ public:
 
 protected:
 
-  void DetectAndDecodeBarcode(InputArray image, std::vector<RotatedRect>& barcodes,
+  void DetectorAndDecodeBarcode(InputArray image, std::vector<RotatedRect>& barcodes,
 		  	std::vector<Point>& barcode_cpoints,std::string& decode_output);
 
   CV_PROP_RW zxing::DecodeHintType decode_hints;

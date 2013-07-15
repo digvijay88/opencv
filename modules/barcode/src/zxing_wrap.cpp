@@ -131,21 +131,22 @@ ZXING_WRAP::ZXING_WRAP(zxing::DecodeHintType _decode_hints) :
 void ZXING_WRAP::operator()(InputArray _image, std::vector<RotatedRect>& barcodes, 
 		std::vector<Point>& barcode_cpoints, std::string& decode_output) const
 {
-  DetectorAndDecodeBarcode(_image, barcodes, barcode_cpoints, decode_output);
+  DetectAndDecodeBarcode(_image, barcodes, barcode_cpoints, decode_output);
 }
 
 // decode operator
 void ZXING_WRAP::operator()(InputArray _image, const std::vector<RotatedRect>& barcodes, 
 		const std::vector<Point>& barcode_cpoints, std::string& decode_output) const
 {
-  DetectorAndDecodeBarcode(_image, barcodes, barcode_cpoints, decode_output);
+  DetectAndDecodeBarcode(_image, barcodes, barcode_cpoints, decode_output);
 }
+
 //destructor
 ZXING_WRAP::~ZXING_WRAP()
 {
 }
 
-void ZXING_WRAP::DetectorAndDecodeBarcode(InputArray _image, std::vector<RotatedRect>& barcodes, 
+void ZXING_WRAP::DetectAndDecodeBarcode(InputArray _image, std::vector<RotatedRect>& barcodes, 
 		std::vector<Point>& barcodes, std::string& decode_output) const
 {
   MultiFormatReader reader;
