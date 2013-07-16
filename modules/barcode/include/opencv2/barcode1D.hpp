@@ -115,13 +115,14 @@ public:
 
   void operator() (InputArray image,const std::vector<RotatedRect>& barcodes, 
 		  const std::vector<Point> &barcode_cpoints, std::string& decode_output) const;
+        void DetectAndDecodeBarcode1(InputArray image, std::vector<RotatedRect>& barcodes,
+		  	std::vector<Point>& barcode_cpoints,std::string& decode_output) const;
 
   AlgorithmInfo* info() const;
 
 protected:
 
-  void DetectAndDecodeBarcode1(InputArray image, std::vector<RotatedRect>& barcodes,
-		  	std::vector<Point>& barcode_cpoints,std::string& decode_output) const;
+
 
   void DetectAndDecodeBarcode2(InputArray image,const std::vector<RotatedRect>& barcodes,
 		  	const std::vector<Point>& barcode_cpoints,std::string& decode_output) const;

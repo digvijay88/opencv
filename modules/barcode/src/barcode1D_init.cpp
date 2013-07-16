@@ -21,7 +21,7 @@ CV_INIT_ALGORITHM(ZXING_WRAP, "Barcode1D.ZXING_WRAP",
 
 //////////////////////////////initModule function////////////////////
 
-bool initModule_barcode1D(void)
+bool cv::barcode::initModule_barcode1D(void)
 {
 	bool all = true;
 	all &= !ZXING_WRAP_info_auto.name().empty();

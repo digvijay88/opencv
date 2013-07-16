@@ -198,6 +198,6 @@ int SymbologyUPCA::getBarcodeLength() const
 {
   return barcode_length;	
 }
-
+void SymbologyUPCA::setBarcodeLength(const int length){(void) length;};
 }
 }
