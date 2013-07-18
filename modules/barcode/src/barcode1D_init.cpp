@@ -17,7 +17,9 @@ CV_INIT_ALGORITHM(ZXING_WRAP, "Barcode1D.ZXING_WRAP",
 		  obj.info()->addParam(obj,"decode_hints",obj.decode_hints));
 
 
-//Decoder
+CV_INIT_ALGORITHM(KatonaNyu, "Barcode1D.KatonaNyu",
+		  obj.info()->addParam(obj,"gausskernelSize",obj.gausskernelSize);
+		  obj.info()->addParam(obj,"sigma",obj.sigma));
 
 //////////////////////////////initModule function////////////////////
 
@@ -25,6 +27,7 @@ bool cv::barcode::initModule_barcode1D(void)
 {
 	bool all = true;
 	all &= !ZXING_WRAP_info_auto.name().empty();
+	all &= !KatonaNyu_info_auto.name().empty();
 
 	return all;
 }

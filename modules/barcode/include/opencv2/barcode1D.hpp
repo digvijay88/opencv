@@ -115,19 +115,51 @@ public:
 
   void operator() (InputArray image,const std::vector<RotatedRect>& barcodes, 
 		  const std::vector<Point> &barcode_cpoints, std::string& decode_output) const;
-        void DetectAndDecodeBarcode1(InputArray image, std::vector<RotatedRect>& barcodes,
+
+  void DetectAndDecodeBarcode1(InputArray image, std::vector<RotatedRect>& barcodes,
 		  	std::vector<Point>& barcode_cpoints,std::string& decode_output) const;
 
   AlgorithmInfo* info() const;
 
 protected:
 
-
-
-  void DetectAndDecodeBarcode2(InputArray image,const std::vector<RotatedRect>& barcodes,
+  void DetectAndDecodeBarcode2(InputArray image, const std::vector<RotatedRect>& barcodes,
 		  	const std::vector<Point>& barcode_cpoints,std::string& decode_output) const;
 
   CV_PROP_RW zxing::DecodeHintType decode_hints;
+};
+
+// Class declaration for KatonaNyu new barcode detection
+class CV_EXPORTS_W KatonaNyu : public Barcode1D
+{
+public:
+  
+  //Explicit constructor
+  CV_WRAP explicit KatonaNyu(Size gausskernelSize=Size(3,3), double sigma=0.3);
+
+  //Destructor
+  virtual ~KatonaNyu();
+
+  //Find barcode regions in the input image
+  void operator() (InputArray image, std::vector<RotatedRect>& barcode_rect,
+		 std::vector<vector<Point> >& barcode_cpoints) const;
+
+  // Info declaration for the new detector
+  AlgorithmInfo* info();
+
+protected:
+  
+  // preprocess the image by applying smoothing, edge enhancement etc and giving a binary thresholded image as output.
+  void preprocessImage(InputArray image, OutputArray bin_image) const;
+
+  //Find barcode regions by removing FP from the input binary image
+  void findBarcoderegions(InputArray bin_image, std::vector<RotatedRect>& barcode_rect,
+  			std::vector<vector<Point> >& barcode_cpoints) const;
+
+  //Parameters
+  CV_PROP_RW gausskernelSize;
+  CV_PROP_RW sigma;
+
 };
 
 
