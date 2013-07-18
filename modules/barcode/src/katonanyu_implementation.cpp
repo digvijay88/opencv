@@ -17,21 +17,24 @@ KatonaNyu::KatonaNyu(Size _gausskernelSize, double _sigma) :
 {
 }
 
-//smoothen the image
-static void smoothImage(Mat& image, Size gausskernelSize, double sigma)
-{
-  
-}
-
 //apply bottom hat filter to the image
 static void applyBottomhatFilter(Mat& image)
 {
 //Define the SE here
+  Mat se1,se2,dst1,dst2;
+  se1 = getStructuringElement(MORPH_RECT, Size(1,10)/*To be changed*/);
+  se2 = getStructuringElement(MORPH_RECT, Size(10,1)/*To be changed*/);
+
+  morphologyEx(image,dst1,MORPH_BLACKHAT,se1);
+  morphologyEx(image,dst2,MORPH_BLACKHAT,se2);
+
+  // how to choose which one to use?
 }
 
 // compute MaxFreq
 static float computeMaxFreq(Mat &image)
 {
+// How to do this?
 }
 
 //compute area threshold to remove FP and apply
@@ -90,13 +93,14 @@ void KatonaNyu::preprocessImage(InputArray _image, Mat& bin_image) const
     cvtColor(image,_image,COLOR_BGR2GRAY);
 
   //smoothen the image to reduce image noise
-  smoothImage(image,gausskernelSize,sigma);
+  Mat image_smooth;
+  GaussianBlur(image,image_smooth,gausskernelSize,sigma);
 
   //applying bottomhat filtering to the image and the SE being linear is defined there.
-  applyBottomhatFilter(image);
+  applyBottomhatFilter(image_smooth);
 
   //frequency of the most frequently occuring element
-  float MaxFreq = computeMaxFreq(image);
+  float MaxFreq = computeMaxFreq(image_smooth);
 
   //compute the threshold next using MaxFreq and the image size and binarise the image and save it as bin_image
   
