@@ -18,7 +18,7 @@ CV_INIT_ALGORITHM(ZXING_WRAP, "Barcode1D.ZXING_WRAP",
 
 
 CV_INIT_ALGORITHM(KatonaNyu, "Barcode1D.KatonaNyu",
-		  obj.info()->addParam(obj,"gausskernelSize",obj.gausskernelSize);
+//		  obj.info()->addParam(obj,"gausskernelSize",obj.gausskernelSize);
 		  obj.info()->addParam(obj,"sigma",obj.sigma));
 
 //////////////////////////////initModule function////////////////////

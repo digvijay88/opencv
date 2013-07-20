@@ -142,10 +142,10 @@ public:
 
   //Find barcode regions in the input image
   void operator() (InputArray image, std::vector<RotatedRect>& barcode_rect,
-		 std::vector<vector<Point> >& barcode_cpoints) const;
+		 std::vector<Point>& barcode_cpoints,std::string& decode_output) const ;
 
   // Info declaration for the new detector
-  AlgorithmInfo* info();
+  AlgorithmInfo* info() const;
 
 protected:
   
@@ -153,12 +153,12 @@ protected:
   void preprocessImage(InputArray image, OutputArray bin_image) const;
 
   //Find barcode regions by removing FP from the input binary image
-  void findBarcoderegions(InputArray bin_image, std::vector<RotatedRect>& barcode_rect,
-  			std::vector<vector<Point> >& barcode_cpoints) const;
+  void findBarcodeRegions(InputArray bin_image, std::vector<RotatedRect>& barcode_rect,
+  			std::vector<Point>& barcode_cpoints) const;
 
   //Parameters
-  CV_PROP_RW gausskernelSize;
-  CV_PROP_RW sigma;
+  CV_PROP_RW Size gausskernelSize;
+  CV_PROP_RW double sigma;
 
 };
 

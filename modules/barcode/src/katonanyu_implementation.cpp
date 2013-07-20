@@ -17,6 +17,11 @@ KatonaNyu::KatonaNyu(Size _gausskernelSize, double _sigma) :
 {
 }
 
+
+KatonaNyu::~KatonaNyu()
+{
+}
+
 //apply bottom hat filter to the image
 static void applyBottomhatFilter(Mat& image)
 {
@@ -27,13 +32,16 @@ static void applyBottomhatFilter(Mat& image)
 
   morphologyEx(image,dst1,MORPH_BLACKHAT,se1);
   morphologyEx(image,dst2,MORPH_BLACKHAT,se2);
-
+  
+  imwrite("/home/diggy/image1.jpg",dst1);
+  imwrite("/home/diggy/image2.jpg",dst2);
   // how to choose which one to use?
 }
 
 // compute MaxFreq
 static float computeMaxFreq(Mat &image)
 {
+  return 0;
 // How to do this?
 }
 
@@ -50,6 +58,7 @@ static void computeDistanceMap(Mat& bin_image,Mat& distanceMap)
 //compute distance threshold value
 static float computeDistanceThresh(Mat& distanceMap)
 {
+  return 0;
 }
   
 //removing Far regions using distance map and threshold
@@ -68,12 +77,12 @@ static void removeUnwantedRegions(Mat& bin_image)
 }
 
 // fill the rectangle and points vector
-static void convertToRectandPoints(Mat& bin_image,vector<RotatedRect>& barcode_rect,vector<vector<Point> >& barcode_cpoints)
+static void convertToRectandPoints(Mat& bin_image,vector<RotatedRect>& barcode_rect,vector<Point>& barcode_cpoints)
 {
 }
 
 void KatonaNyu::operator()(InputArray _image, vector<RotatedRect>& _barcode_rect,
-			vector<vector<Point> >& _barcode_cpoints) const
+			vector<Point>& _barcode_cpoints,string& decode_output) const
 {
   Mat bin_image;
   
@@ -84,13 +93,14 @@ void KatonaNyu::operator()(InputArray _image, vector<RotatedRect>& _barcode_rect
   findBarcodeRegions(bin_image, _barcode_rect, _barcode_cpoints);
 }
 
-void KatonaNyu::preprocessImage(InputArray _image, Mat& bin_image) const
+void KatonaNyu::preprocessImage(InputArray _image, OutputArray bin_image) const
 {
   Mat image = _image.getMat();
+  Mat clone_image = image.clone();
 
   //convert to grayscale
   if(image.type() != CV_8UC1)
-    cvtColor(image,_image,COLOR_BGR2GRAY);
+    cvtColor(image,clone_image,COLOR_BGR2GRAY);
 
   //smoothen the image to reduce image noise
   Mat image_smooth;
@@ -106,28 +116,29 @@ void KatonaNyu::preprocessImage(InputArray _image, Mat& bin_image) const
   
 }
 
-void KatonaNyu::findBarcodeRegions(Mat& bin_image, vector<RotatedRect>& barcode_rect,
-			vector<vector<Point> >& barcode_cpoints) const
+void KatonaNyu::findBarcodeRegions(InputArray bin_image, vector<RotatedRect>& barcode_rect,
+			vector<Point>& barcode_cpoints) const
 {
   //compute area threshold to remove FP and apply
-  computeAreaThresholdandApply(bin_image);
+  Mat image = bin_image.getMat();
+  computeAreaThresholdandApply(image);
 
   //compute distance map for the image and then distance threshold from that.
   Mat distanceMap;
-  computeDistanceMap(bin_image,distanceMap);
+  computeDistanceMap(image,distanceMap);
   float distanceThresh = computeDistanceThresh(distanceMap);
   
   //removing Far regions using distance map and threshold
-  removeFarByRegions(bin_image,distanceMap,distanceThresh);
+  removeFarByRegions(image,distanceMap,distanceThresh);
 
   //removing unwanted text and other regions using morphology : dilation and then erosion. SE to be defined there
-  removeRegionsUsingMorphology(bin_image);
+  removeRegionsUsingMorphology(image);
 
   //remove the left FP regions based on size and proportions
-  removeUnwantedRegions(bin_image);
+  removeUnwantedRegions(image);
 
   // fill the rectangle and points vector
-  convertToRectandPoints(bin_image,barcode_rect, barcode_cpoints);
+  convertToRectandPoints(image,barcode_rect, barcode_cpoints);
 }
 
 }
