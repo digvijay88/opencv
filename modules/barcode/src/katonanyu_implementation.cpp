@@ -3,6 +3,8 @@
 #include <cstdio>
 #include <iostream>
 #include <fstream>
+#include <cmath>
+#include <climits>
 
 using namespace std;
 
@@ -27,45 +29,130 @@ static void applyBottomhatFilter(Mat& image)
 {
 //Define the SE here
   Mat se1,se2,dst1,dst2;
-  se1 = getStructuringElement(MORPH_RECT, Size(1,10)/*To be changed*/);
-  se2 = getStructuringElement(MORPH_RECT, Size(10,1)/*To be changed*/);
+  se1 = getStructuringElement(MORPH_RECT, Size(1,25)/*To be changed*/);
+  se2 = getStructuringElement(MORPH_RECT, Size(25,1)/*To be changed*/);
 
   morphologyEx(image,dst1,MORPH_BLACKHAT,se1);
   morphologyEx(image,dst2,MORPH_BLACKHAT,se2);
   
   imwrite("/home/diggy/image1.jpg",dst1);
   imwrite("/home/diggy/image2.jpg",dst2);
-  // how to choose which one to use?
+
+  // how to choose which one to use? based on number of non-zero pixels
+  int cnt1 = 0;
+  int cnt2 = 0;
+  for(int i=0;i<image.rows;i++)
+  {
+    for(int j=0;j<image.cols;j++)
+    {   
+      if(dst1.at<int>(i,j) != 0)
+        cnt1++;
+      if(dst2.at<int>(i,j) != 0)
+        cnt2++;
+    }   
+  }
+  
+  if(cnt1 > cnt2)
+    image = dst1;
+  else
+    image = dst2;
+
 }
 
 // compute MaxFreq
-static float computeMaxFreq(Mat &image)
+static void computeMaxFreqandThreshold(Mat& image);
 {
-  return 0;
-// How to do this?
+  Mat freq_dom_image;
+  Mat planes[] = {Mat_<float>(image), Mat::zeros(image.size(), CV_8UC1)};
+  merge(planes,2,freq_dom_image);
+
+  dft(freq_dom_image,freq_dom_image);
+
+  split(freq_dom_image,planes);
+
+  int m = planes[0].rows;
+  int n = planes[1].cols;
+  
+  float max_mag = sqrt((planes[0].at<float>(0,0)*planes[0].at<float>(0,0)) + (planes[1].at<float>(0,0)*planes[1].at<float>(0,0)));
+  int mag_x = 0;
+  int mag_y = 0;
+  for(int i=0;i<m;i++)
+  {
+    for(int j=0;j<n;j++)
+    {
+      float temp_mag = sqrt((planes[0].at<float>(i,j)*planes[0].at<float>(i,j)) + (planes[1].at<float>(i,j)*planes[1].at<float>(i,j)));
+      if(temp_mag > max_mag)
+      {
+	max_mag = temp_mag;
+	mag_x = i;
+	mag_y = j;
+      }
+    }
+  }
+  
+  // Need to check what is more and what is less according to the paper.......
+  //Right now taking 80%
+  
+  float thresh = 0.8*max_mag;
+  //TODO: do this later i.e. finding the threshold and do whatever .
+
 }
 
 //compute area threshold to remove FP and apply
-static void computeAreaThresholdandApply(Mat& bin_image)
+static void computeAreaThresholdandApply(Mat& thresh_image)
 {
+  Mat edges;
+  float areaThreshold;
+//  blur(thresh_image,edges,Size(5,5));
+
+  Canny(edges,edges,100,100*3,5);
+  vector<vector<Point> > contours;
+  vector<vec4i> hierarchy;
+
+  findContours(edges,contours,hierarchy,CV_RETR_LIST,CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+  int max_size = 0;
+  for(int i=0;i<contours.size();i++)
+    if(contours[i].size > max_size)
+      max_size = contours[i].size;
+
+  if(thresh_image.rows*thresh_image.cols > 800*800)
+    areaThreshold = 0.5*max_size;
+  else
+    areaThreshold = 0.25*max_size;
+
+  Mat out_draw = zeros( filtrd.size(), CV_8UC1 );
+
+  for(int i=0;i<contours.size();i++)
+  {
+    if(contours[i].size > areaThreshold)
+    {
+      Scalar color( rand()&255);
+      drawContours(out_draw,contours,i,color,CV_FILLED,8,hierarchy);
+    }
+  }
+
+  thresh_image = out_draw;
 }
 
-//compute distance map for the binary image
-static void computeDistanceMap(Mat& bin_image,Mat& distanceMap)
+//compute distance threshold value and remove far objects
+static void removeFarObjects(Mat &image,Mat &distanceMap);
 {
-}
+  //calculate distance threshold
+  float dist_thresh = INT_MAX;
+  for(int i=0;i<distanceMap.rows;i++)
+  {
+    float sum = 0;
+    for(int j=0;j<distanceMap.cols;j++)
+      sum += distanceMap.at<float>(i,j);
+    
+    sum /= distanceMap.cols;
+    if(sum < dist_thresh)
+      dist_thresh = sum;
+  }
 
-//compute distance threshold value
-static float computeDistanceThresh(Mat& distanceMap)
-{
-  return 0;
+  // next how do we check which regions are far by?
 }
   
-//removing Far regions using distance map and threshold
-static void removeFarByRegions(Mat& bin_image,Mat& distanceMap,float distanceThresh)
-{
-}
-
 //removing unwanted text and other regions using morphology : dilation and then erosion. SE to be defined there
 static void removeRegionsUsingMorphology(Mat& bin_image)
 {
@@ -84,16 +171,16 @@ static void convertToRectandPoints(Mat& bin_image,vector<RotatedRect>& barcode_r
 void KatonaNyu::operator()(InputArray _image, vector<RotatedRect>& _barcode_rect,
 			vector<Point>& _barcode_cpoints,string& decode_output) const
 {
-  Mat bin_image;
+  Mat thresh_image;
   
   //preprocess the image to get a binary image as output
-  preprocessImage(_image,bin_image);
+  preprocessImage(_image,thresh_image);
 
   //from the binary image, save obtain the barcode detection regions
-  findBarcodeRegions(bin_image, _barcode_rect, _barcode_cpoints);
+  findBarcodeRegions(thresh_image, _barcode_rect, _barcode_cpoints);
 }
 
-void KatonaNyu::preprocessImage(InputArray _image, OutputArray bin_image) const
+void KatonaNyu::preprocessImage(InputArray _image, OutputArray thresh_image) const
 {
   Mat image = _image.getMat();
   Mat clone_image = image.clone();
@@ -110,26 +197,38 @@ void KatonaNyu::preprocessImage(InputArray _image, OutputArray bin_image) const
   applyBottomhatFilter(image_smooth);
 
   //frequency of the most frequently occuring element
-  float MaxFreq = computeMaxFreq(image_smooth);
+  //compute the threshold next using MaxFreq and the image size and threshold the image and save it as thresh_image
+  computeMaxFreqandThreshold(image_smooth);
 
-  //compute the threshold next using MaxFreq and the image size and binarise the image and save it as bin_image
+  thresh_image = image_smooth;
   
 }
 
-void KatonaNyu::findBarcodeRegions(InputArray bin_image, vector<RotatedRect>& barcode_rect,
+void KatonaNyu::findBarcodeRegions(InputArray thresh_image, vector<RotatedRect>& barcode_rect,
 			vector<Point>& barcode_cpoints) const
 {
   //compute area threshold to remove FP and apply
-  Mat image = bin_image.getMat();
+  Mat image = thresh_image.getMat();
   computeAreaThresholdandApply(image);
 
   //compute distance map for the image and then distance threshold from that.
   Mat distanceMap;
-  computeDistanceMap(image,distanceMap);
-  float distanceThresh = computeDistanceThresh(distanceMap);
+  Mat inv_image = image;
   
-  //removing Far regions using distance map and threshold
-  removeFarByRegions(image,distanceMap,distanceThresh);
+  for(int i=0;i<image.rows;i++)
+  {
+    for(int j=0;j<image.cols;j++)
+    {
+      if(image.at<int>(i,j) != 0)
+        inv_image.at<int>(i,j) = 0;
+      else
+        inv_image.at<int>(i,j) = 1;
+    }
+  }
+  distanceTransform(inv_image,distanceMap,CV_DIST_L2, CV_DIST_MASK_PRECISE);
+  
+  //compute distance threshold and remove Far regions using distance map and threshold
+  removeFarObjects(image,distanceMap);
 
   //removing unwanted text and other regions using morphology : dilation and then erosion. SE to be defined there
   removeRegionsUsingMorphology(image);

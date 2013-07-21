@@ -147,10 +147,10 @@ public:
   // Info declaration for the new detector
   AlgorithmInfo* info() const;
 
-protected:
-  
   // preprocess the image by applying smoothing, edge enhancement etc and giving a binary thresholded image as output.
   void preprocessImage(InputArray image, OutputArray bin_image) const;
+protected:
+  
 
   //Find barcode regions by removing FP from the input binary image
   void findBarcodeRegions(InputArray bin_image, std::vector<RotatedRect>& barcode_rect,
