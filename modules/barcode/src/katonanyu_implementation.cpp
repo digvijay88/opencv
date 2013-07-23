@@ -62,7 +62,40 @@ static void applyBottomhatFilter(Mat& image)
 // compute MaxFreq
 static void computeMaxFreqandThreshold(Mat& image);
 {
-  Mat freq_dom_image;
+  float range[] = {0,256};
+  const float* histRange = { range };
+  Mat gray_hist;
+  int histSize = 256;
+
+  calcHist(&image,1,0,Mat(),gray_hist,1, &histSize, &histRange,true,false);
+  
+  int MaxFreq = 0;
+  for(int i=0;i<histSize;i++)
+    if(gray_hist.at<float>(i) > MaxFreq)
+      MaxFreq = gray_hist.at<float>(i);
+
+  float thresh = 0.8*MaxFreq;
+
+  for(int i=0;i<histSize;i++)
+    if(gray_hist.at<float>(i) < thresh)
+      gray_hist.at<float>(i) = 0;
+ 
+ for(int i=0;i<image.rows;i++)
+ {
+   for(int j=0;j<image.cols;j++)
+   {
+     int pxl_val = image.at<uchar>(i,j);
+     if(gray_hist.at<float>((int)pxl_val) == 0)
+       image.at<uchar>(i,j) = 0;
+     else
+       image.at<uchar>(i,j) = 255;
+   }
+ }
+ 
+ Mat bin_image;
+ threshold(image,bin_image,120,255,THRESH_BINARY);
+ image = bin_image;
+/*  Mat freq_dom_image;
   Mat planes[] = {Mat_<float>(image), Mat::zeros(image.size(), CV_8UC1)};
   merge(planes,2,freq_dom_image);
 
@@ -88,22 +121,21 @@ static void computeMaxFreqandThreshold(Mat& image);
 	mag_y = j;
       }
     }
-  }
+  }*/
   
   // Need to check what is more and what is less according to the paper.......
   //Right now taking 80%
   
-  float thresh = 0.8*max_mag;
   //TODO: do this later i.e. finding the threshold and do whatever .
 
 }
 
 //compute area threshold to remove FP and apply
-static void computeAreaThresholdandApply(Mat& thresh_image)
+static void computeAreaThresholdandApply(Mat& bin_image)
 {
   Mat edges;
   float areaThreshold;
-//  blur(thresh_image,edges,Size(5,5));
+  blur(bin_image,edges,Size(5,5));
 
   Canny(edges,edges,100,100*3,5);
   vector<vector<Point> > contours;
@@ -115,7 +147,7 @@ static void computeAreaThresholdandApply(Mat& thresh_image)
     if(contours[i].size > max_size)
       max_size = contours[i].size;
 
-  if(thresh_image.rows*thresh_image.cols > 800*800)
+  if(bin_image.rows*bin_image.cols > 800*800)
     areaThreshold = 0.5*max_size;
   else
     areaThreshold = 0.25*max_size;
@@ -131,7 +163,7 @@ static void computeAreaThresholdandApply(Mat& thresh_image)
     }
   }
 
-  thresh_image = out_draw;
+  bin_image = out_draw;
 }
 
 //compute distance threshold value and remove far objects
@@ -156,11 +188,51 @@ static void removeFarObjects(Mat &image,Mat &distanceMap);
 //removing unwanted text and other regions using morphology : dilation and then erosion. SE to be defined there
 static void removeRegionsUsingMorphology(Mat& bin_image)
 {
+  //Need to change the size to max(40,width_widest_bar*3);
+  ln_se = max(40,width_widest_bar*3);
+  Mat se = getStructuringElement(MORPH_RECT,Size(ln_se,ln_se));
+  Mat morphed_image;
+  dilate(bin_image,morphed_image,se);
+
+  se = getStructuringElement(MORPH_RECT,Size(ln_se/3,1));
+  erode(morphed_image,bin_image,se);
+
 }
 
 //remove the left FP regions based on size and proportions
 static void removeUnwantedRegions(Mat& bin_image)
 {
+  Mat edges;
+  float areaThreshold = 0;
+
+  blur(bin_image,edges,Size(5,5));
+  Canny(edges,edges,100,100*3,5);
+  vector<vector<Point> > contours;
+  vector<vec4i> hierarchy;
+
+  findContours(edges,contours,hierarchy,CV_RETR_LIST,CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+
+  for(int i=0;i<contours.size();i++)
+    if(contours[i].size() > areaThreshold)
+      areaThreshold = contours[i].size();
+
+  if(bin_image.cols*bin_image.rows > 800*800)
+    areaThreshold = areaThreshold/2;
+  else
+    areaThreshold = areaThreshold/4;
+
+  Mat out_draw = zeros(bin_image.size(),bin_image.type());
+  
+  for(int i=0;i<contours.size();i++)
+  {
+    if(contours[i].size > areaThreshold)
+    {
+      Scalar color( 1);
+      drawContours(out_draw,contours,i,color,CV_FILLED,8,hierarchy);
+    }
+  }
+
+
 }
 
 // fill the rectangle and points vector
@@ -171,16 +243,16 @@ static void convertToRectandPoints(Mat& bin_image,vector<RotatedRect>& barcode_r
 void KatonaNyu::operator()(InputArray _image, vector<RotatedRect>& _barcode_rect,
 			vector<Point>& _barcode_cpoints,string& decode_output) const
 {
-  Mat thresh_image;
+  Mat bin_image;
   
   //preprocess the image to get a binary image as output
-  preprocessImage(_image,thresh_image);
+  preprocessImage(_image,bin_image);
 
   //from the binary image, save obtain the barcode detection regions
-  findBarcodeRegions(thresh_image, _barcode_rect, _barcode_cpoints);
+  findBarcodeRegions(bin_image, _barcode_rect, _barcode_cpoints);
 }
 
-void KatonaNyu::preprocessImage(InputArray _image, OutputArray thresh_image) const
+void KatonaNyu::preprocessImage(InputArray _image, OutputArray bin_image) const
 {
   Mat image = _image.getMat();
   Mat clone_image = image.clone();
@@ -197,18 +269,18 @@ void KatonaNyu::preprocessImage(InputArray _image, OutputArray thresh_image) con
   applyBottomhatFilter(image_smooth);
 
   //frequency of the most frequently occuring element
-  //compute the threshold next using MaxFreq and the image size and threshold the image and save it as thresh_image
+  //compute the threshold next using MaxFreq and the image size and threshold the image and save it as bin_image
   computeMaxFreqandThreshold(image_smooth);
 
-  thresh_image = image_smooth;
+  bin_image = image_smooth;
   
 }
 
-void KatonaNyu::findBarcodeRegions(InputArray thresh_image, vector<RotatedRect>& barcode_rect,
+void KatonaNyu::findBarcodeRegions(InputArray bin_image, vector<RotatedRect>& barcode_rect,
 			vector<Point>& barcode_cpoints) const
 {
   //compute area threshold to remove FP and apply
-  Mat image = thresh_image.getMat();
+  Mat image = bin_image.getMat();
   computeAreaThresholdandApply(image);
 
   //compute distance map for the image and then distance threshold from that.
