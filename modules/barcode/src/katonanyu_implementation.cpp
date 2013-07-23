@@ -60,7 +60,7 @@ static void applyBottomhatFilter(Mat& image)
 }
 
 // compute MaxFreq
-static void computeMaxFreqandThreshold(Mat& image);
+static void computeMaxFreqandThreshold(Mat& image)
 {
   float range[] = {0,256};
   const float* histRange = { range };
@@ -135,31 +135,31 @@ static void computeAreaThresholdandApply(Mat& bin_image)
 {
   Mat edges;
   float areaThreshold;
-  blur(bin_image,edges,Size(5,5));
+  blur(bin_image,edges,Size(3,3));
 
   Canny(edges,edges,100,100*3,5);
   vector<vector<Point> > contours;
-  vector<vec4i> hierarchy;
+  vector<Vec4i> hierarchy;
 
-  findContours(edges,contours,hierarchy,CV_RETR_LIST,CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+  findContours(edges,contours,hierarchy,RETR_LIST,CHAIN_APPROX_SIMPLE, Point(0, 0));
   int max_size = 0;
   for(int i=0;i<contours.size();i++)
-    if(contours[i].size > max_size)
-      max_size = contours[i].size;
+    if(contours[i].size() > max_size)
+      max_size = contours[i].size();
 
   if(bin_image.rows*bin_image.cols > 800*800)
     areaThreshold = 0.5*max_size;
   else
     areaThreshold = 0.25*max_size;
 
-  Mat out_draw = zeros( filtrd.size(), CV_8UC1 );
+  Mat out_draw = Mat::zeros( bin_image.size(), CV_8UC1 );
 
   for(int i=0;i<contours.size();i++)
   {
-    if(contours[i].size > areaThreshold)
+    if(contours[i].size() > areaThreshold)
     {
-      Scalar color( rand()&255);
-      drawContours(out_draw,contours,i,color,CV_FILLED,8,hierarchy);
+      Scalar color( 255);
+      drawContours(out_draw,contours,i,color,FILLED,8,hierarchy);
     }
   }
 
@@ -167,7 +167,7 @@ static void computeAreaThresholdandApply(Mat& bin_image)
 }
 
 //compute distance threshold value and remove far objects
-static void removeFarObjects(Mat &image,Mat &distanceMap);
+static void removeFarObjects(Mat &image,Mat &distanceMap)
 {
   //calculate distance threshold
   float dist_thresh = INT_MAX;
@@ -189,7 +189,8 @@ static void removeFarObjects(Mat &image,Mat &distanceMap);
 static void removeRegionsUsingMorphology(Mat& bin_image)
 {
   //Need to change the size to max(40,width_widest_bar*3);
-  ln_se = max(40,width_widest_bar*3);
+  int ln_se = 40;
+//  int ln_se = max(40/*,width_widest_bar*3*/);
   Mat se = getStructuringElement(MORPH_RECT,Size(ln_se,ln_se));
   Mat morphed_image;
   dilate(bin_image,morphed_image,se);
@@ -208,9 +209,9 @@ static void removeUnwantedRegions(Mat& bin_image)
   blur(bin_image,edges,Size(5,5));
   Canny(edges,edges,100,100*3,5);
   vector<vector<Point> > contours;
-  vector<vec4i> hierarchy;
+  vector<Vec4i> hierarchy;
 
-  findContours(edges,contours,hierarchy,CV_RETR_LIST,CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+  findContours(edges,contours,hierarchy,RETR_LIST,CHAIN_APPROX_SIMPLE, Point(0, 0));
 
   for(int i=0;i<contours.size();i++)
     if(contours[i].size() > areaThreshold)
@@ -221,14 +222,14 @@ static void removeUnwantedRegions(Mat& bin_image)
   else
     areaThreshold = areaThreshold/4;
 
-  Mat out_draw = zeros(bin_image.size(),bin_image.type());
+  Mat out_draw = Mat::zeros(bin_image.size(),bin_image.type());
   
   for(int i=0;i<contours.size();i++)
   {
-    if(contours[i].size > areaThreshold)
+    if(contours[i].size() > areaThreshold)
     {
       Scalar color( 1);
-      drawContours(out_draw,contours,i,color,CV_FILLED,8,hierarchy);
+      drawContours(out_draw,contours,i,color,FILLED,8,hierarchy);
     }
   }
 
@@ -272,7 +273,7 @@ void KatonaNyu::preprocessImage(InputArray _image, OutputArray bin_image) const
   //compute the threshold next using MaxFreq and the image size and threshold the image and save it as bin_image
   computeMaxFreqandThreshold(image_smooth);
 
-  bin_image = image_smooth;
+  image_smooth.copyTo(bin_image);
   
 }
 
@@ -297,7 +298,7 @@ void KatonaNyu::findBarcodeRegions(InputArray bin_image, vector<RotatedRect>& ba
         inv_image.at<int>(i,j) = 1;
     }
   }
-  distanceTransform(inv_image,distanceMap,CV_DIST_L2, CV_DIST_MASK_PRECISE);
+  distanceTransform(inv_image,distanceMap,DIST_L2, DIST_MASK_PRECISE);
   
   //compute distance threshold and remove Far regions using distance map and threshold
   removeFarObjects(image,distanceMap);
