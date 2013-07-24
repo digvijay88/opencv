@@ -34,13 +34,13 @@ protected:
   {
     initModule_barcode1D();
 //    CV_Assert(!detector.empty());
-
+    
     //TODO: get all the images
     string imgName;
     Mat image = imread(imgName);
     if(image.empty())
     {
-      ts->printf(cvtest::TS::LOG,"LOADING problem: Unable to load image %s\n",imgName.c_str());
+      ts->printf(cvtest::TS::LOG,"LOADING problem: Unable to load image %s\n .. radio\n",imgName.c_str());
       ts->set_failed_test_info(cvtest::TS::FAIL_INVALID_TEST_DATA);
 //      continue; 	//because everything will be inside another for loop
     }
@@ -53,7 +53,7 @@ protected:
 
     if(barcode_rect.empty() && barcode_cpoints.empty())
     {
-      ts->printf(cvtest::TS::LOG,"DETECTION error: Unable to detect barcode in the image %s\n",imgName.c_str());
+      ts->printf(cvtest::TS::LOG,"DETECTION error: Unable to detect barcode in the image %s\n .. petrol\n",imgName.c_str());
       ts->set_failed_test_info(cvtest::TS::FAIL_INVALID_OUTPUT);
 //      continue;
     }
@@ -68,7 +68,7 @@ protected:
 
 	if(!r.contains(pt_temp))
 	{
-          ts->printf(cvtest::TS::LOG,"DETECTION error: Detected region out of bound in the image %s\n",imgName.c_str());
+          ts->printf(cvtest::TS::LOG,"DETECTION error: Detected region out of bound in the image %s\n .. diesel\n",imgName.c_str());
           ts->set_failed_test_info(cvtest::TS::FAIL_INVALID_OUTPUT);
 	}
       }

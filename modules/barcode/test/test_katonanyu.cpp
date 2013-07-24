@@ -7,6 +7,7 @@
 #include<boost/filesystem.hpp>
 #include "opencv2/highgui.hpp"
 #include "opencv2/core.hpp"
+#include<iostream>
 
 
 using namespace std;
@@ -32,10 +33,12 @@ protected:
 
     //TODO: get all the images
     string imgName = ts->get_data_path() + "barcode/zxing/zxing-2.2/core/test/data/blackbox/upca-1/12.png" ;
+    cout << "this is the string " << imgName << endl;
+    ts->printf(cvtest::TS::LOG,"LOADING problem: Unable to load image %s\n... check check",imgName.c_str());
     Mat image = imread(imgName);
     if(image.empty())
     {
-      ts->printf(cvtest::TS::LOG,"LOADING problem: Unable to load image %s\n",imgName.c_str());
+      ts->printf(cvtest::TS::LOG,"LOADING problem: Unable to load image %s\n .. blah .. blah",imgName.c_str());
       ts->set_failed_test_info(cvtest::TS::FAIL_INVALID_TEST_DATA);
 //      continue; 	//because everything will be inside another for loop
     }
