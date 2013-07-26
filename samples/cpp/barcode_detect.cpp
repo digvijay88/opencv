@@ -35,7 +35,7 @@ int main(int argc,char** argv)
   int retval = parseCmdArgs(argc, argv);
 //  if(retval)
 //    return -1;
-  cout << image_name << endl;  
+  cout << img_name << endl;  
   Mat image = imread(img_name.c_str(),IMREAD_GRAYSCALE);
   if(image.empty())
   {
