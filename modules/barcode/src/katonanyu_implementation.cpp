@@ -39,23 +39,19 @@ static void applyBottomhatFilter(Mat& image)
   imwrite("/home/diggy/image2.jpg",dst2);
 
   // how to choose which one to use? based on number of non-zero pixels
-  int cnt1 = 0;
-  int cnt2 = 0;
-  for(int i=0;i<image.rows;i++)
-  {
-    for(int j=0;j<image.cols;j++)
-    {   
-      if(dst1.at<int>(i,j) != 0)
-        cnt1++;
-      if(dst2.at<int>(i,j) != 0)
-        cnt2++;
-    }   
-  }
+  int cnt1 = countNonZero(dst1);
+  int cnt2 = countNonZero(dst2);
   
   if(cnt1 > cnt2)
+  {
     image = dst1;
+    cout << "Took FIRST yo" << endl;
+  }
   else
+  {
     image = dst2;
+    cout << "Took SECOND yo" << endl;
+  }
 
 }
 
@@ -73,13 +69,21 @@ static void computeMaxFreqandThreshold(Mat& image)
   for(int i=0;i<histSize;i++)
     if(gray_hist.at<float>(i) > MaxFreq)
       MaxFreq = gray_hist.at<float>(i);
-
+  cout << "MaxFreq is " << MaxFreq << endl;
+  // Need to check what is more and what is less according to the paper.......
+  //Right now taking 80%
+  
+  //TODO: do this later i.e. finding the threshold and do whatever .
   float thresh = 0.8*MaxFreq;
 
   for(int i=0;i<histSize;i++)
     if(gray_hist.at<float>(i) < thresh)
+    {
+      cout << i << "->" << gray_hist.at<float>(i) << "| ";
       gray_hist.at<float>(i) = 0;
- 
+    }
+
+ imwrite("before.jpg",image);
  for(int i=0;i<image.rows;i++)
  {
    for(int j=0;j<image.cols;j++)
@@ -91,42 +95,11 @@ static void computeMaxFreqandThreshold(Mat& image)
        image.at<uchar>(i,j) = 255;
    }
  }
- 
+   
+ imwrite("after.jpg",image);
  Mat bin_image;
  threshold(image,bin_image,120,255,THRESH_BINARY);
  image = bin_image;
-/*  Mat freq_dom_image;
-  Mat planes[] = {Mat_<float>(image), Mat::zeros(image.size(), CV_8UC1)};
-  merge(planes,2,freq_dom_image);
-
-  dft(freq_dom_image,freq_dom_image);
-
-  split(freq_dom_image,planes);
-
-  int m = planes[0].rows;
-  int n = planes[1].cols;
-  
-  float max_mag = sqrt((planes[0].at<float>(0,0)*planes[0].at<float>(0,0)) + (planes[1].at<float>(0,0)*planes[1].at<float>(0,0)));
-  int mag_x = 0;
-  int mag_y = 0;
-  for(int i=0;i<m;i++)
-  {
-    for(int j=0;j<n;j++)
-    {
-      float temp_mag = sqrt((planes[0].at<float>(i,j)*planes[0].at<float>(i,j)) + (planes[1].at<float>(i,j)*planes[1].at<float>(i,j)));
-      if(temp_mag > max_mag)
-      {
-	max_mag = temp_mag;
-	mag_x = i;
-	mag_y = j;
-      }
-    }
-  }*/
-  
-  // Need to check what is more and what is less according to the paper.......
-  //Right now taking 80%
-  
-  //TODO: do this later i.e. finding the threshold and do whatever .
 
 }
 
@@ -258,11 +231,11 @@ void KatonaNyu::preprocessImage(InputArray _image, OutputArray bin_image) const
   Mat image = _image.getMat();
   Mat clone_image = image.clone();
 
-  //convert to grayscale
+  cout << "convert to grayscale" << endl;
   if(image.type() != CV_8UC1)
     cvtColor(image,clone_image,COLOR_BGR2GRAY);
 
-  //smoothen the image to reduce image noise
+  cout << "smoothen the image to reduce image noise" << endl;
   Mat image_smooth;
   GaussianBlur(image,image_smooth,gausskernelSize,sigma);
 
@@ -272,7 +245,7 @@ void KatonaNyu::preprocessImage(InputArray _image, OutputArray bin_image) const
   //frequency of the most frequently occuring element
   //compute the threshold next using MaxFreq and the image size and threshold the image and save it as bin_image
   computeMaxFreqandThreshold(image_smooth);
-
+  imwrite("/home/diggy/image3.jpg",image_smooth);
   image_smooth.copyTo(bin_image);
   
 }
