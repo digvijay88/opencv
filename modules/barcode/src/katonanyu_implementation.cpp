@@ -29,8 +29,8 @@ static void applyBottomhatFilter(Mat& image,int fctr)
 {
 //Define the SE here
   Mat se1,se2,dst1,dst2;
-  int lenth_se = 25;
-  if(fctr >= 2)
+  int lenth_se = 20;
+  if(fctr >= 1)
     lenth_se = ((25*image.cols*image.rows)/(720*480));
 
   cout << "Length for SE used is " << lenth_se << endl;
@@ -58,7 +58,7 @@ static void applyBottomhatFilter(Mat& image,int fctr)
     image = dst2;
     cout << "Took SECOND yo" << endl;
   }
-
+  imshow("bottom hat",image);
 }
 
 // compute MaxFreq
@@ -68,7 +68,7 @@ static void computeMaxFreqandThreshold(Mat& image)
   const float* histRange = { range };
   Mat gray_hist;
   int histSize = 256;
-  imshow("image",image);
+//  imshow("image",image);
   waitKey(0);
   calcHist(&image,1,0,Mat(),gray_hist,1, &histSize, &histRange,true,false);
   
@@ -113,12 +113,12 @@ static void computeMaxFreqandThreshold(Mat& image)
      int pxl_val = (int)image.at<uchar>(i,j);
 
      /// Temp solution
-     if(pxl_val < 50)
+/*     if(pxl_val < 50)
        image.at<uchar>(i,j) = 0;
      else
-       image.at<uchar>(i,j) = 255;
+       image.at<uchar>(i,j) = 255;*/
 
-/*     if(pxl_val < (int)thresh)
+     if(pxl_val < (int)thresh)
        image.at<uchar>(i,j) = 0;
      else
      {
@@ -126,7 +126,7 @@ static void computeMaxFreqandThreshold(Mat& image)
  //        image.at<uchar>(i,j) = 0;
  //      else
        image.at<uchar>(i,j) = 255;
-     }*/
+     }
    }
  }
    
@@ -210,7 +210,7 @@ static void removeFarObjects(Mat &image,Mat &distanceMap)
       if((float)distanceMap.at<uchar>(i,j) > dist_thresh)
         image.at<uchar>(i,j) = 0;
 
-  imshow("farobects removed",image);
+//  imshow("farobects removed",image);
   waitKey(0);
 }
   
@@ -311,7 +311,7 @@ void KatonaNyu::preprocessImage(InputArray _image, OutputArray bin_image) const
   }
   else
     GaussianBlur(image,image_smooth,Size(0,0),sigma);
-
+  imshow("smooth image",image_smooth);
   
   //applying bottomhat filtering to the image and the SE being linear is defined there.
   applyBottomhatFilter(image_smooth,fctr);
@@ -334,7 +334,7 @@ void KatonaNyu::findBarcodeRegions(InputArray bin_image, vector<RotatedRect>& ba
   //compute distance map for the image and then distance threshold from that.
   Mat distanceMap;
   Mat inv_image = image;
-  imshow("inv_image",inv_image);
+//  imshow("inv_image",inv_image);
   waitKey(0);
   
   for(int i=0;i<image.rows;i++)
@@ -349,7 +349,7 @@ void KatonaNyu::findBarcodeRegions(InputArray bin_image, vector<RotatedRect>& ba
     }
   }
   cout << endl;
-  imshow("inv_image",inv_image);
+//  imshow("inv_image",inv_image);
   waitKey(0);
   distanceTransform(inv_image,distanceMap,DIST_L2, DIST_MASK_PRECISE);
   float max_inv = -1;
@@ -364,7 +364,7 @@ void KatonaNyu::findBarcodeRegions(InputArray bin_image, vector<RotatedRect>& ba
       distanceMap.at<float>(i,j) = (int)((distanceMap.at<float>(i,j)/max_inv)*255);
 
   cout << "Type of distance transform is " << distanceMap.type() << endl;
-  imshow("distance transform",distanceMap);
+//  imshow("distance transform",distanceMap);
   waitKey(0);
   
   //compute distance threshold and remove Far regions using distance map and threshold
