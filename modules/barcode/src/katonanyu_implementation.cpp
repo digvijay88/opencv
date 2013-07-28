@@ -28,37 +28,91 @@ KatonaNyu::~KatonaNyu()
 static void applyBottomhatFilter(Mat& image,int fctr)
 {
 //Define the SE here
-  Mat se1,se2,dst1,dst2;
-  int lenth_se = 20;
-  if(fctr >= 1)
-    lenth_se = ((25*image.cols*image.rows)/(720*480));
-
+  Mat se1,se2;
+  Mat dst1_pyr1,dst2_pyr1;
+  Mat dst1_pyr2,dst2_pyr2;
+  Mat dst1_pyr3,dst2_pyr3;
+  int lenth_se = 25;
+//  if(fctr >= 1)
+//    lenth_se = ((25*image.cols*image.rows)/(720*480));
   cout << "Length for SE used is " << lenth_se << endl;
   
   se1 = getStructuringElement(MORPH_RECT, Size(1,lenth_se)/*To be changed*/);
   se2 = getStructuringElement(MORPH_RECT, Size(lenth_se,1)/*To be changed*/);
+ 
+  //pyramid 1
+  Mat temp_image = image;
+  morphologyEx(temp_image,dst1_pyr1,MORPH_BLACKHAT,se1);
+  morphologyEx(temp_image,dst2_pyr1,MORPH_BLACKHAT,se2);
 
-  morphologyEx(image,dst1,MORPH_BLACKHAT,se1);
-  morphologyEx(image,dst2,MORPH_BLACKHAT,se2);
-  
-  imwrite("/home/diggy/git/out_image/image1.jpg",dst1);
-  imwrite("/home/diggy/git/out_image/image2.jpg",dst2);
+  //pyramid 2
+  resize(image,temp_image,Size(image.cols/2,image.rows/2),0,0,INTER_NEAREST);
+  morphologyEx(temp_image,dst1_pyr2,MORPH_BLACKHAT,se1);
+  morphologyEx(temp_image,dst2_pyr2,MORPH_BLACKHAT,se2);
+  resize(dst1_pyr2,dst1_pyr2,Size(dst1_pyr2.cols*2,dst1_pyr2.rows*2),0,0,INTER_NEAREST);
+  resize(dst2_pyr2,dst2_pyr2,Size(dst2_pyr2.cols*2,dst2_pyr2.rows*2),0,0,INTER_NEAREST);
+
+  //pyramid 3
+  resize(image,temp_image,Size(image.cols/4,image.rows/2),0,0,INTER_NEAREST);
+  morphologyEx(temp_image,dst1_pyr3,MORPH_BLACKHAT,se1);
+  morphologyEx(temp_image,dst2_pyr3,MORPH_BLACKHAT,se2);
+  resize(dst1_pyr3,dst1_pyr3,Size(dst1_pyr3.cols*2,dst1_pyr3.rows*2),0,0,INTER_NEAREST);
+  resize(dst2_pyr3,dst2_pyr3,Size(dst2_pyr3.cols*2,dst2_pyr3.rows*2),0,0,INTER_NEAREST);
+
 
   // how to choose which one to use? based on number of non-zero pixels
-  int cnt1 = countNonZero(dst1);
-  int cnt2 = countNonZero(dst2);
-  
-  if(cnt1 > cnt2)
+  int cnt[3][2];
+  cnt[0][0] = countNonZero(dst1_pyr1);
+  cnt[0][1] = countNonZero(dst2_pyr1);
+  cnt[1][0] = countNonZero(dst1_pyr2);
+  cnt[1][1] = countNonZero(dst2_pyr2);
+  cnt[2][0] = countNonZero(dst1_pyr3);
+  cnt[2][1] = countNonZero(dst2_pyr3);
+
+  int indx1 = 0;
+  int indx2 = 0;
+  int cnt_max = cnt[0][0];
+  for(int i=0;i<3;i++)
   {
-    image = dst1;
-    cout << "Took FIRST yo" << endl;
+    if(cnt[i][0] > cnt_max)
+    {
+      cnt_max = cnt[i][0];
+      indx1 = i;
+      indx2 = 0;
+    }
+    if(cnt[i][1] > cnt_max)
+    {
+      cnt_max = cnt[i][1];
+      indx1 = i;
+      indx2 = 1;
+    }
+  }
+  cout << "Indices are " << indx1 << " " << indx2 << endl; 
+  
+  if(indx1 == 0)
+  {
+    if(indx2 == 0)
+      image = dst1_pyr1;
+    else
+      image = dst2_pyr1;
+  }
+  else if(indx1 == 1)
+  {
+    if(indx2 == 0)
+      image = dst1_pyr2;
+    else
+      image = dst2_pyr2;
   }
   else
   {
-    image = dst2;
-    cout << "Took SECOND yo" << endl;
+    if(indx2 == 0)
+      image = dst1_pyr3;
+    else
+      image = dst2_pyr3;
   }
+
   imshow("bottom hat",image);
+  waitKey(0);
 }
 
 // compute MaxFreq
@@ -79,7 +133,7 @@ static void computeMaxFreqandThreshold(Mat& image)
   for(int i=0;i<histSize;i++)
   {
     totalfreq += gray_hist.at<float>(i);
-    cout << "Indx " << i << " -> " << gray_hist.at<float>(i) << endl;
+//    cout << "Indx " << i << " -> " << gray_hist.at<float>(i) << endl;
     if(gray_hist.at<float>(i) > MaxFreq)
     {
       MaxFreq = gray_hist.at<float>(i);
@@ -91,6 +145,7 @@ static void computeMaxFreqandThreshold(Mat& image)
         max_value = i-1;
   }
   cout << "MaxFreq is " << MaxFreq << " out of total " << totalfreq << endl;
+  cout << "relative maxfreq is " << (100*MaxFreq)/totalfreq << endl;
   cout << "maximum value is " << max_value << endl;
 //  cout << "Indx is " << ind << endl;
   // Need to check what is more and what is less according to the paper.......
@@ -312,6 +367,7 @@ void KatonaNyu::preprocessImage(InputArray _image, OutputArray bin_image) const
   else
     GaussianBlur(image,image_smooth,Size(0,0),sigma);
   imshow("smooth image",image_smooth);
+  waitKey(0);
   
   //applying bottomhat filtering to the image and the SE being linear is defined there.
   applyBottomhatFilter(image_smooth,fctr);
