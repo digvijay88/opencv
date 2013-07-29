@@ -46,8 +46,8 @@ static void applyBottomhatFilter(Mat& image)
   else
     image = dst2;
 
-  imshow("bottom hat",image);
-  waitKey(0);
+//  imshow("bottom hat",image);
+//  waitKey(0);
 }
 
 // compute MaxFreq
@@ -60,18 +60,14 @@ static void computeMaxFreqandThreshold(Mat& image)
   calcHist(&image,1,0,Mat(),gray_hist,1, &histSize, &histRange,true,false);
   
   int MaxFreq = 0;
-//  int ind = 10;
   int totalfreq = 0;
   int max_value = -1;
   for(int i=0;i<histSize;i++)
   {
     totalfreq += gray_hist.at<float>(i);
-//    cout << "Indx " << i << " -> " << gray_hist.at<float>(i) << endl;
     if(gray_hist.at<float>(i) > MaxFreq)
-    {
       MaxFreq = gray_hist.at<float>(i);
-//      ind = i;
-    }
+    
     if(i == 255 && max_value == -1)
       max_value = 255;
     else if(gray_hist.at<float>(i) == 0 && max_value == -1)
@@ -96,12 +92,6 @@ static void computeMaxFreqandThreshold(Mat& image)
     for(int j=0;j<image.cols;j++)
     {
       int pxl_val = (int)image.at<uchar>(i,j);
-
-     /// Temp solution
-/*     if(pxl_val < 50)
-       image.at<uchar>(i,j) = 0;
-     else
-       image.at<uchar>(i,j) = 255;*/
 
       if(pxl_val < (int)thresh)
         image.at<uchar>(i,j) = 0;
@@ -168,24 +158,32 @@ static void computeAreaThresholdandApply(Mat& bin_image)
 static void removeFarObjects(Mat &image,Mat &distanceMap)
 {
   //calculate distance threshold
+  cout << image.cols << " " << image.rows << endl;
   float dist_thresh = INT_MAX;
+  int ind = 0;
   for(int i=0;i<distanceMap.rows;i++)
   {
     float sum = 0;
     for(int j=0;j<distanceMap.cols;j++)
-      sum += (float)distanceMap.at<uchar>(i,j);
+      sum += (float)distanceMap.at<float>(i,j);
     
     sum /= distanceMap.cols;
     if(sum < dist_thresh)
+    {
       dist_thresh = sum;
+      ind = i;
+    }
   }
-  cout << "distance threshold is " << dist_thresh << endl;
+  cout << "distance threshold is " << dist_thresh << " at index " << ind << endl;
 
   // next how do we check which regions are far by?
   for(int i=0;i<distanceMap.rows;i++)
     for(int j=0;j<distanceMap.cols;j++)
-      if((float)distanceMap.at<uchar>(i,j) > dist_thresh)
+      if((float)distanceMap.at<float>(i,j) > dist_thresh)
         image.at<uchar>(i,j) = 0;
+
+  imshow("dmap",image);
+  waitKey(0);
 
 }
   
@@ -242,7 +240,7 @@ static void removeUnwantedRegions(Mat& bin_image)
 
 static void invert_image(Mat& image,Mat& out_image)
 {
-  out_image = image;
+  out_image = Mat::zeros(image.size(),image.type());
   for(int i=0;i<image.rows;i++)
   {
     for(int j=0;j<image.cols;j++)
@@ -307,8 +305,8 @@ void KatonaNyu::preprocessImage(InputArray _image, OutputArray bin_image,vector<
   }
   else
     GaussianBlur(image,image_smooth,Size(0,0),sigma);
-  imshow("smooth image",image_smooth);
-  waitKey(0);
+//  imshow("smooth image",image_smooth);
+//  waitKey(0);
   image = image_smooth;
 
   //Use resize() as pyramid. Create three pyramids.
