@@ -25,100 +25,29 @@ KatonaNyu::~KatonaNyu()
 }
 
 //apply bottom hat filter to the image
-static void applyBottomhatFilter(Mat& image,int fctr)
+static void applyBottomhatFilter(Mat& image)
 {
 //Define the SE here
   Mat se1,se2;
-  Mat dst1_pyr1,dst2_pyr1;
-  Mat dst1_pyr2,dst2_pyr2;
-  Mat dst1_pyr3,dst2_pyr3;
+  Mat dst1,dst2;
   int lenth_se = 25;
 //  if(fctr >= 1)
 //    lenth_se = ((25*image.cols*image.rows)/(720*480));
-  cout << "Length for SE used is " << lenth_se << endl;
+//  cout << "Length for SE used is " << lenth_se << endl;
   
   se1 = getStructuringElement(MORPH_RECT, Size(1,lenth_se)/*To be changed*/);
   se2 = getStructuringElement(MORPH_RECT, Size(lenth_se,1)/*To be changed*/);
  
-  //pyramid 1
-  Mat temp_image = image;
-  morphologyEx(temp_image,dst1_pyr1,MORPH_BLACKHAT,se1);
-  morphologyEx(temp_image,dst2_pyr1,MORPH_BLACKHAT,se2);
-  imwrite("/home/diggy/git/out_image/dst1_pyr1.jpg",dst1_pyr1);
-  imwrite("/home/diggy/git/out_image/dst2_pyr1.jpg",dst2_pyr1);
-  //pyramid 2
-  resize(image,temp_image,Size(image.cols/2,image.rows/2),0,0,INTER_NEAREST);
-  morphologyEx(temp_image,dst1_pyr2,MORPH_BLACKHAT,se1);
-  morphologyEx(temp_image,dst2_pyr2,MORPH_BLACKHAT,se2);
-  resize(dst1_pyr2,dst1_pyr2,Size(dst1_pyr2.cols*2,dst1_pyr2.rows*2),0,0,INTER_NEAREST);
-  resize(dst2_pyr2,dst2_pyr2,Size(dst2_pyr2.cols*2,dst2_pyr2.rows*2),0,0,INTER_NEAREST);
-  imwrite("/home/diggy/git/out_image/dst1_pyr2.jpg",dst1_pyr2);
-  imwrite("/home/diggy/git/out_image/dst2_pyr2.jpg",dst2_pyr2);
-
-  //pyramid 3
-  resize(image,temp_image,Size(image.cols/4,image.rows/4),0,0,INTER_NEAREST);
-  morphologyEx(temp_image,dst1_pyr3,MORPH_BLACKHAT,se1);
-  morphologyEx(temp_image,dst2_pyr3,MORPH_BLACKHAT,se2);
-  resize(dst1_pyr3,dst1_pyr3,Size(dst1_pyr3.cols*4,dst1_pyr3.rows*4),0,0,INTER_NEAREST);
-  resize(dst2_pyr3,dst2_pyr3,Size(dst2_pyr3.cols*4,dst2_pyr3.rows*4),0,0,INTER_NEAREST);
-  imwrite("/home/diggy/git/out_image/dst1_pyr3.jpg",dst1_pyr3);
-  imwrite("/home/diggy/git/out_image/dst2_pyr3.jpg",dst2_pyr3);
-
-
-  // how to choose which one to use? based on number of non-zero pixels
-  int cnt[3][2];
-  cnt[0][0] = countNonZero(dst1_pyr1);
-  cnt[0][1] = countNonZero(dst2_pyr1);
-  cnt[1][0] = countNonZero(dst1_pyr2);
-  cnt[1][1] = countNonZero(dst2_pyr2);
-  cnt[2][0] = countNonZero(dst1_pyr3);
-  cnt[2][1] = countNonZero(dst2_pyr3);
-
-  int indx1 = 0;
-  int indx2 = 0;
-  int cnt_max = cnt[0][0];
-  for(int i=0;i<3;i++)
-  {
-    if(cnt[i][0] > cnt_max)
-    {
-      cnt_max = cnt[i][0];
-      indx1 = i;
-      indx2 = 0;
-    }
-    if(cnt[i][1] > cnt_max)
-    {
-      cnt_max = cnt[i][1];
-      indx1 = i;
-      indx2 = 1;
-    }
-  }
-  cout << "Indices are " << indx1 << " " << indx2 << endl; 
+  morphologyEx(image,dst1,MORPH_BLACKHAT,se1);
+  morphologyEx(image,dst2,MORPH_BLACKHAT,se2);
   
-  if(indx1 == 0)
-  {
-    if(indx2 == 0)
-      image = dst1_pyr1;
-    else
-      image = dst2_pyr1;
-  }
-  else if(indx1 == 1)
-  {
-    if(indx2 == 0)
-      image = dst1_pyr2;
-    else
-      image = dst2_pyr2;
-  }
+  if(countNonZero(dst1) > countNonZero(dst2))
+    image = dst1;
   else
-  {
-    if(indx2 == 0)
-      image = dst1_pyr3;
-    else
-      image = dst2_pyr3;
-  }
+    image = dst2;
 
   imshow("bottom hat",image);
   waitKey(0);
-  imwrite("bottom.jpg",image);
 }
 
 // compute MaxFreq
@@ -128,8 +57,6 @@ static void computeMaxFreqandThreshold(Mat& image)
   const float* histRange = { range };
   Mat gray_hist;
   int histSize = 256;
-//  imshow("image",image);
-  waitKey(0);
   calcHist(&image,1,0,Mat(),gray_hist,1, &histSize, &histRange,true,false);
   
   int MaxFreq = 0;
@@ -151,7 +78,7 @@ static void computeMaxFreqandThreshold(Mat& image)
         max_value = i-1;
   }
   cout << "MaxFreq is " << MaxFreq << " out of total " << totalfreq << endl;
-  cout << "relative maxfreq is " << (100*MaxFreq)/totalfreq << endl;
+  cout << "======== Relative maxfreq is " << (100*MaxFreq)/totalfreq << endl;
   cout << "maximum value is " << max_value << endl;
 //  cout << "Indx is " << ind << endl;
   // Need to check what is more and what is less according to the paper.......
@@ -161,17 +88,14 @@ static void computeMaxFreqandThreshold(Mat& image)
 
   for(int i=0;i<histSize;i++)
     if(gray_hist.at<float>(i) < thresh)
-    {
-//      cout << i << "->" << gray_hist.at<float>(i) << "| ";
       gray_hist.at<float>(i) = 0;
-    }
 
 // imwrite("/home/diggy/git/out_image/before.jpg",image);
- for(int i=0;i<image.rows;i++)
- {
-   for(int j=0;j<image.cols;j++)
-   {
-     int pxl_val = (int)image.at<uchar>(i,j);
+  for(int i=0;i<image.rows;i++)
+  {
+    for(int j=0;j<image.cols;j++)
+    {
+      int pxl_val = (int)image.at<uchar>(i,j);
 
      /// Temp solution
 /*     if(pxl_val < 50)
@@ -179,23 +103,15 @@ static void computeMaxFreqandThreshold(Mat& image)
      else
        image.at<uchar>(i,j) = 255;*/
 
-     if(pxl_val < (int)thresh)
-       image.at<uchar>(i,j) = 0;
-     else
-     {
- //      if(gray_hist.at<float>((int)pxl_val) == 0)
- //        image.at<uchar>(i,j) = 0;
- //      else
-       image.at<uchar>(i,j) = 255;
-     }
-   }
- }
-   
- Mat bin_image;
- threshold(image,bin_image,120,255,THRESH_BINARY);
- image = bin_image;
- imwrite("/home/diggy/git/out_image/preprocessed.jpg",image);
-
+      if(pxl_val < (int)thresh)
+        image.at<uchar>(i,j) = 0;
+      else
+        image.at<uchar>(i,j) = 255;
+    }
+  }
+  Mat bin_image;
+  threshold(image,bin_image,120,255,THRESH_BINARY);
+  image = bin_image;
 }
 
 //compute area threshold to remove FP and apply
@@ -271,8 +187,6 @@ static void removeFarObjects(Mat &image,Mat &distanceMap)
       if((float)distanceMap.at<uchar>(i,j) > dist_thresh)
         image.at<uchar>(i,j) = 0;
 
-//  imshow("farobects removed",image);
-  waitKey(0);
 }
   
 //removing unwanted text and other regions using morphology : dilation and then erosion. SE to be defined there
@@ -326,6 +240,24 @@ static void removeUnwantedRegions(Mat& bin_image)
 
 }
 
+static void invert_image(Mat& image,Mat& out_image)
+{
+  out_image = image;
+  for(int i=0;i<image.rows;i++)
+  {
+    for(int j=0;j<image.cols;j++)
+    {
+      if((int)image.at<uchar>(i,j) != 0)
+        out_image.at<uchar>(i,j) = 0;
+      else
+        out_image.at<uchar>(i,j) = 255;
+    }
+  }
+  Mat temp_image;
+  threshold(out_image,temp_image,120,255,THRESH_BINARY);
+  out_image = temp_image;
+}
+
 // fill the rectangle and points vector
 static void convertToRectandPoints(Mat& bin_image,vector<RotatedRect>& barcode_rect,vector<Point>& barcode_cpoints)
 {
@@ -337,13 +269,16 @@ void KatonaNyu::operator()(InputArray _image, vector<RotatedRect>& _barcode_rect
   Mat bin_image;
   
   //preprocess the image to get a binary image as output
-  preprocessImage(_image,bin_image);
+  preprocessImage(_image,bin_image,_barcode_rect,_barcode_cpoints);
 
   //from the binary image, save obtain the barcode detection regions
-  findBarcodeRegions(bin_image, _barcode_rect, _barcode_cpoints);
+//  findBarcodeRegions(bin_image, _barcode_rect, _barcode_cpoints);
 }
+  
 
-void KatonaNyu::preprocessImage(InputArray _image, OutputArray bin_image) const
+
+void KatonaNyu::preprocessImage(InputArray _image, OutputArray bin_image,vector<RotatedRect>& barcode_rect,
+			vector<Point>& barcode_cpoints) const
 {
   Mat image = _image.getMat();
   Mat clone_image = image.clone();
@@ -374,72 +309,63 @@ void KatonaNyu::preprocessImage(InputArray _image, OutputArray bin_image) const
     GaussianBlur(image,image_smooth,Size(0,0),sigma);
   imshow("smooth image",image_smooth);
   waitKey(0);
-  
+  image = image_smooth;
+
+  //Use resize() as pyramid. Create three pyramids.
+  Mat pyr1,pyr2,pyr3;
+  //pyramid1
+  pyr1 = image;
+
+  //pyramid2
+  resize(image,pyr2,Size(image.cols/2,image.rows/2),INTER_NEAREST);
+
+  //pyramid3
+  resize(image,pyr3,Size(image.cols/4,image.rows/4),INTER_NEAREST);
+
   //applying bottomhat filtering to the image and the SE being linear is defined there.
-  applyBottomhatFilter(image_smooth,fctr);
+  applyBottomhatFilter(pyr1);
+  imwrite("/home/diggy/git/out_image/bottom1.jpg",pyr1);
+  applyBottomhatFilter(pyr2);
+  imwrite("/home/diggy/git/out_image/bottom2.jpg",pyr2);
+  applyBottomhatFilter(pyr3);
+  imwrite("/home/diggy/git/out_image/bottom3.jpg",pyr3);
 
   //frequency of the most frequently occuring element
   //compute the threshold next using MaxFreq and the image size and threshold the image and save it as bin_image
-  computeMaxFreqandThreshold(image_smooth);
-//  imwrite("/home/diggy/git/out_image/image3.jpg",image_smooth);
-  image_smooth.copyTo(bin_image);
+  Mat bin1,bin2,bin3;
+  computeMaxFreqandThreshold(pyr1);
+  imwrite("/home/diggy/git/out_image/bin1.jpg",pyr1);
+  computeMaxFreqandThreshold(pyr2);
+  imwrite("/home/diggy/git/out_image/bin2.jpg",pyr2);
+  computeMaxFreqandThreshold(pyr3);
+  imwrite("/home/diggy/git/out_image/bin3.jpg",pyr3);
   
-}
-
-void KatonaNyu::findBarcodeRegions(InputArray bin_image, vector<RotatedRect>& barcode_rect,
-			vector<Point>& barcode_cpoints) const
-{
-  //compute area threshold to remove FP and apply
-  Mat image = bin_image.getMat();
-//  computeAreaThresholdandApply(image);
-
   //compute distance map for the image and then distance threshold from that.
-  Mat distanceMap;
-  Mat inv_image = image;
-//  imshow("inv_image",inv_image);
-  waitKey(0);
-  
-  for(int i=0;i<image.rows;i++)
-  {
-    for(int j=0;j<image.cols;j++)
-    {
-      if((int)image.at<uchar>(i,j) != 0)
-        inv_image.at<uchar>(i,j) = 0;
-      else
-        inv_image.at<uchar>(i,j) = 255;
-//      cout << (int)inv_image.at<uchar>(i,j) << " ";
-    }
-  }
-  cout << endl;
-//  imshow("inv_image",inv_image);
-  waitKey(0);
-  distanceTransform(inv_image,distanceMap,DIST_L2, DIST_MASK_PRECISE);
-  float max_inv = -1;
-  for(int i=0;i<distanceMap.rows;i++)
-    for(int j=0;j<distanceMap.cols;j++)
-      if(max_inv < distanceMap.at<float>(i,j))
-        max_inv = distanceMap.at<float>(i,j);
-  cout << "maximum value for image inverse is " << max_inv << endl;
+  Mat dmap1,dmap2,dmap3;
+  Mat inv1,inv2,inv3;
+  invert_image(pyr1,inv1);
+  distanceTransform(inv1,dmap1,DIST_L2, DIST_MASK_PRECISE);
+  invert_image(pyr2,inv2);
+  distanceTransform(inv2,dmap2,DIST_L2, DIST_MASK_PRECISE);
+  invert_image(pyr3,inv3);
+  distanceTransform(inv3,dmap3,DIST_L2, DIST_MASK_PRECISE);
 
-  for(int i=0;i<distanceMap.rows;i++)
-    for(int j=0;j<distanceMap.cols;j++)
-      distanceMap.at<float>(i,j) = (int)((distanceMap.at<float>(i,j)/max_inv)*255);
-
-  cout << "Type of distance transform is " << distanceMap.type() << endl;
-//  imshow("distance transform",distanceMap);
-  waitKey(0);
-  
   //compute distance threshold and remove Far regions using distance map and threshold
-  removeFarObjects(image,distanceMap);
+  removeFarObjects(pyr1,dmap1);
+  imwrite("/home/diggy/git/out_image/dmap1.jpg",pyr1);
+  removeFarObjects(pyr2,dmap2);
+  imwrite("/home/diggy/git/out_image/dmap2.jpg",pyr2);
+  removeFarObjects(pyr3,dmap3);
+  imwrite("/home/diggy/git/out_image/dmap3.jpg",pyr3);
 
   //removing unwanted text and other regions using morphology : dilation and then erosion. SE to be defined there
-  removeRegionsUsingMorphology(image);
+//  removeRegionsUsingMorphology(image);
 
   //remove the left FP regions based on size and proportions
-  removeUnwantedRegions(image);
+//  removeUnwantedRegions(image);
 
   // fill the rectangle and points vector
-  convertToRectandPoints(image,barcode_rect, barcode_cpoints);
+//  convertToRectandPoints(image,barcode_rect, barcode_cpoints);
 }
 
 }
