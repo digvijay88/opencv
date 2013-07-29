@@ -81,6 +81,7 @@ static void computeMaxFreqandThreshold(Mat& image)
   //Right now taking 80%  
   //TODO: do this later i.e. finding the threshold and do whatever .
   float thresh = 0.8*max_value;
+  thresh = 50; /////////////////////////////////////////////////////////////////////////////////harcoded value
 
   for(int i=0;i<histSize;i++)
     if(gray_hist.at<float>(i) < thresh)
@@ -205,32 +206,37 @@ static void removeRegionsUsingMorphology(Mat& bin_image)
 //remove the left FP regions based on size and proportions
 static void removeUnwantedRegions(Mat& bin_image)
 {
-  Mat edges;
+  Mat edges = bin_image;
   float areaThreshold = 0;
 
-  blur(bin_image,edges,Size(5,5));
+//  blur(bin_image,edges,Size(5,5));
   Canny(edges,edges,100,100*3,5);
   vector<vector<Point> > contours;
   vector<Vec4i> hierarchy;
 
-  findContours(edges,contours,hierarchy,RETR_LIST,CHAIN_APPROX_SIMPLE, Point(0, 0));
+  findContours(edges,contours,hierarchy,RETR_LIST,CHAIN_APPROX_NONE);
+  
+  cout << "*****" << contours.size() << "******" << endl;
 
   for(int i=0;i<contours.size();i++)
+  {
+    cout << "CONTOUR SIZE " << contourArea(contours[i]) << endl;
     if(contours[i].size() > areaThreshold)
-      areaThreshold = contours[i].size();
+      areaThreshold = contourArea(contours[i]);
+  }
 
   if(bin_image.cols*bin_image.rows > 800*800)
     areaThreshold = areaThreshold/2;
   else
     areaThreshold = areaThreshold/4;
-
+  cout << "area threshold is " << areaThreshold << endl;
   Mat out_draw = Mat::zeros(bin_image.size(),bin_image.type());
   
   for(int i=0;i<contours.size();i++)
   {
-    if(contours[i].size() > areaThreshold)
+    if(contourArea(contours[i]) > areaThreshold)
     {
-      Scalar color( 1);
+      Scalar color( 255);
       drawContours(out_draw,contours,i,color,FILLED,8,hierarchy);
     }
   }
@@ -357,10 +363,20 @@ void KatonaNyu::preprocessImage(InputArray _image, OutputArray bin_image,vector<
   imwrite("/home/diggy/git/out_image/dmap3.jpg",pyr3);
 
   //removing unwanted text and other regions using morphology : dilation and then erosion. SE to be defined there
-//  removeRegionsUsingMorphology(image);
+  removeRegionsUsingMorphology(pyr1);
+  imwrite("/home/diggy/git/out_image/morph1.jpg",pyr1);
+  removeRegionsUsingMorphology(pyr2);
+  imwrite("/home/diggy/git/out_image/morph2.jpg",pyr2);
+  removeRegionsUsingMorphology(pyr3);
+  imwrite("/home/diggy/git/out_image/morph3.jpg",pyr3);
 
   //remove the left FP regions based on size and proportions
-//  removeUnwantedRegions(image);
+  removeUnwantedRegions(pyr1);
+  imwrite("/home/diggy/git/out_image/fin1.jpg",pyr1);
+  removeUnwantedRegions(pyr2);
+  imwrite("/home/diggy/git/out_image/fin2.jpg",pyr2);
+  removeUnwantedRegions(pyr3);
+  imwrite("/home/diggy/git/out_image/fin3.jpg",pyr3);
 
   // fill the rectangle and points vector
 //  convertToRectandPoints(image,barcode_rect, barcode_cpoints);
