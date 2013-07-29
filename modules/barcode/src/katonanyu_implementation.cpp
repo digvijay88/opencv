@@ -44,20 +44,25 @@ static void applyBottomhatFilter(Mat& image,int fctr)
   Mat temp_image = image;
   morphologyEx(temp_image,dst1_pyr1,MORPH_BLACKHAT,se1);
   morphologyEx(temp_image,dst2_pyr1,MORPH_BLACKHAT,se2);
-
+  imwrite("/home/diggy/git/out_image/dst1_pyr1.jpg",dst1_pyr1);
+  imwrite("/home/diggy/git/out_image/dst2_pyr1.jpg",dst2_pyr1);
   //pyramid 2
   resize(image,temp_image,Size(image.cols/2,image.rows/2),0,0,INTER_NEAREST);
   morphologyEx(temp_image,dst1_pyr2,MORPH_BLACKHAT,se1);
   morphologyEx(temp_image,dst2_pyr2,MORPH_BLACKHAT,se2);
   resize(dst1_pyr2,dst1_pyr2,Size(dst1_pyr2.cols*2,dst1_pyr2.rows*2),0,0,INTER_NEAREST);
   resize(dst2_pyr2,dst2_pyr2,Size(dst2_pyr2.cols*2,dst2_pyr2.rows*2),0,0,INTER_NEAREST);
+  imwrite("/home/diggy/git/out_image/dst1_pyr2.jpg",dst1_pyr2);
+  imwrite("/home/diggy/git/out_image/dst2_pyr2.jpg",dst2_pyr2);
 
   //pyramid 3
-  resize(image,temp_image,Size(image.cols/4,image.rows/2),0,0,INTER_NEAREST);
+  resize(image,temp_image,Size(image.cols/4,image.rows/4),0,0,INTER_NEAREST);
   morphologyEx(temp_image,dst1_pyr3,MORPH_BLACKHAT,se1);
   morphologyEx(temp_image,dst2_pyr3,MORPH_BLACKHAT,se2);
-  resize(dst1_pyr3,dst1_pyr3,Size(dst1_pyr3.cols*2,dst1_pyr3.rows*2),0,0,INTER_NEAREST);
-  resize(dst2_pyr3,dst2_pyr3,Size(dst2_pyr3.cols*2,dst2_pyr3.rows*2),0,0,INTER_NEAREST);
+  resize(dst1_pyr3,dst1_pyr3,Size(dst1_pyr3.cols*4,dst1_pyr3.rows*4),0,0,INTER_NEAREST);
+  resize(dst2_pyr3,dst2_pyr3,Size(dst2_pyr3.cols*4,dst2_pyr3.rows*4),0,0,INTER_NEAREST);
+  imwrite("/home/diggy/git/out_image/dst1_pyr3.jpg",dst1_pyr3);
+  imwrite("/home/diggy/git/out_image/dst2_pyr3.jpg",dst2_pyr3);
 
 
   // how to choose which one to use? based on number of non-zero pixels
@@ -113,6 +118,7 @@ static void applyBottomhatFilter(Mat& image,int fctr)
 
   imshow("bottom hat",image);
   waitKey(0);
+  imwrite("bottom.jpg",image);
 }
 
 // compute MaxFreq
