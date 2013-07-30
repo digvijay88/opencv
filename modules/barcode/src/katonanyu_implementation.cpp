@@ -183,8 +183,8 @@ static void removeFarObjects(Mat &image,Mat &distanceMap)
       if((float)distanceMap.at<float>(i,j) > dist_thresh)
         image.at<uchar>(i,j) = 0;
 
-  imshow("dmap",image);
-  waitKey(0);
+//  imshow("dmap",image);
+//  waitKey(0);
 
 }
   
@@ -192,7 +192,7 @@ static void removeFarObjects(Mat &image,Mat &distanceMap)
 static void removeRegionsUsingMorphology(Mat& bin_image)
 {
   //Need to change the size to max(40,width_widest_bar*3);
-  int ln_se = 40;
+  int ln_se = 30;
 //  int ln_se = max(40/*,width_widest_bar*3*/);
   Mat se = getStructuringElement(MORPH_RECT,Size(ln_se,ln_se));
   Mat morphed_image;
@@ -206,11 +206,12 @@ static void removeRegionsUsingMorphology(Mat& bin_image)
 //remove the left FP regions based on size and proportions
 static void removeUnwantedRegions(Mat& bin_image)
 {
-  Mat edges = bin_image;
+  Mat edges;
+  bin_image.copyTo(edges);
   float areaThreshold = 0;
 
 //  blur(bin_image,edges,Size(5,5));
-  Canny(edges,edges,100,100*3,5);
+//  Canny(edges,edges,100,100*3,5);
   vector<vector<Point> > contours;
   vector<Vec4i> hierarchy;
 
@@ -220,8 +221,9 @@ static void removeUnwantedRegions(Mat& bin_image)
 
   for(int i=0;i<contours.size();i++)
   {
-    cout << "CONTOUR SIZE " << contourArea(contours[i]) << endl;
-    if(contours[i].size() > areaThreshold)
+    float temp_area = contourArea(contours[i]);
+//    cout << "CONTOUR SIZE " << temp_area << endl;
+    if(temp_area > areaThreshold)
       areaThreshold = contourArea(contours[i]);
   }
 
@@ -231,7 +233,8 @@ static void removeUnwantedRegions(Mat& bin_image)
     areaThreshold = areaThreshold/4;
   cout << "area threshold is " << areaThreshold << endl;
   Mat out_draw = Mat::zeros(bin_image.size(),bin_image.type());
-  
+  imshow("before",bin_image); 
+  waitKey(0);
   for(int i=0;i<contours.size();i++)
   {
     if(contourArea(contours[i]) > areaThreshold)
@@ -241,6 +244,9 @@ static void removeUnwantedRegions(Mat& bin_image)
     }
   }
 
+  threshold(out_draw,bin_image,120,255,THRESH_BINARY);
+  imshow("after",bin_image); 
+  waitKey(0);
 
 }
 
@@ -344,6 +350,14 @@ void KatonaNyu::preprocessImage(InputArray _image, OutputArray bin_image,vector<
   computeMaxFreqandThreshold(pyr3);
   imwrite("/home/diggy/git/out_image/bin3.jpg",pyr3);
   
+  //remove the left FP regions based on size and proportions
+  removeUnwantedRegions(pyr1);
+  imwrite("/home/diggy/git/out_image/nounwanted1.jpg",pyr1);
+  removeUnwantedRegions(pyr2);
+  imwrite("/home/diggy/git/out_image/nounwanted2.jpg",pyr2);
+  removeUnwantedRegions(pyr3);
+  imwrite("/home/diggy/git/out_image/nounwanted3.jpg",pyr3);
+
   //compute distance map for the image and then distance threshold from that.
   Mat dmap1,dmap2,dmap3;
   Mat inv1,inv2,inv3;
@@ -362,6 +376,7 @@ void KatonaNyu::preprocessImage(InputArray _image, OutputArray bin_image,vector<
   removeFarObjects(pyr3,dmap3);
   imwrite("/home/diggy/git/out_image/dmap3.jpg",pyr3);
 
+
   //removing unwanted text and other regions using morphology : dilation and then erosion. SE to be defined there
   removeRegionsUsingMorphology(pyr1);
   imwrite("/home/diggy/git/out_image/morph1.jpg",pyr1);
@@ -370,13 +385,6 @@ void KatonaNyu::preprocessImage(InputArray _image, OutputArray bin_image,vector<
   removeRegionsUsingMorphology(pyr3);
   imwrite("/home/diggy/git/out_image/morph3.jpg",pyr3);
 
-  //remove the left FP regions based on size and proportions
-  removeUnwantedRegions(pyr1);
-  imwrite("/home/diggy/git/out_image/fin1.jpg",pyr1);
-  removeUnwantedRegions(pyr2);
-  imwrite("/home/diggy/git/out_image/fin2.jpg",pyr2);
-  removeUnwantedRegions(pyr3);
-  imwrite("/home/diggy/git/out_image/fin3.jpg",pyr3);
 
   // fill the rectangle and points vector
 //  convertToRectandPoints(image,barcode_rect, barcode_cpoints);
