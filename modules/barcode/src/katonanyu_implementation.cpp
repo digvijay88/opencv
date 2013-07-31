@@ -62,16 +62,22 @@ static void computeMaxFreqandThreshold(Mat& image)
   int MaxFreq = 0;
   int totalfreq = 0;
   int max_value = -1;
-  for(int i=0;i<histSize;i++)
+  for(int i=histSize-1;i>=0;i--)
   {
     totalfreq += gray_hist.at<float>(i);
     if(gray_hist.at<float>(i) > MaxFreq)
       MaxFreq = gray_hist.at<float>(i);
     
-    if(i == 255 && max_value == -1)
-      max_value = 255;
-    else if(gray_hist.at<float>(i) == 0 && max_value == -1)
-        max_value = i-1;
+    if((int)gray_hist.at<float>(i) != 0 && max_value == -1)
+    {
+      if(i == 0)
+      {
+        cout << "THERE IS SOMETHING SERIOUSLY WRONG !!" << endl;
+	max_value = 0;
+      }
+      else
+        max_value = i;
+    }
   }
   cout << "MaxFreq is " << MaxFreq << " out of total " << totalfreq << endl;
   cout << "======== Relative maxfreq is " << (100*MaxFreq)/totalfreq << endl;
@@ -200,8 +206,20 @@ static void removeRegionsUsingMorphology(Mat& bin_image)
 
   se = getStructuringElement(MORPH_RECT,Size(ln_se/3,1));
   erode(morphed_image,bin_image,se);
-
 }
+
+// a basic function to combine very close objects for thin barcodes 
+static void useMorphology(Mat& bin_image)
+{
+  //Need to change the size to max(40,width_widest_bar*3);
+  int ln_se = 5;
+//  int ln_se = max(40/*,width_widest_bar*3*/);
+  Mat se = getStructuringElement(MORPH_RECT,Size(ln_se,ln_se));
+  Mat morphed_image;
+  dilate(bin_image,morphed_image,se);
+  bin_image = morphed_image;
+}
+
 
 //remove the left FP regions based on size and proportions
 static void removeUnwantedRegions(Mat& bin_image)
@@ -233,8 +251,8 @@ static void removeUnwantedRegions(Mat& bin_image)
     areaThreshold = areaThreshold/4;
   cout << "area threshold is " << areaThreshold << endl;
   Mat out_draw = Mat::zeros(bin_image.size(),bin_image.type());
-  imshow("before",bin_image); 
-  waitKey(0);
+//  imshow("before",bin_image); 
+//  waitKey(0);
   for(int i=0;i<contours.size();i++)
   {
     if(contourArea(contours[i]) > areaThreshold)
@@ -245,8 +263,8 @@ static void removeUnwantedRegions(Mat& bin_image)
   }
 
   threshold(out_draw,bin_image,120,255,THRESH_BINARY);
-  imshow("after",bin_image); 
-  waitKey(0);
+//  imshow("after",bin_image); 
+//  waitKey(0);
 
 }
 
@@ -291,17 +309,16 @@ void KatonaNyu::preprocessImage(InputArray _image, OutputArray bin_image,vector<
 			vector<Point>& barcode_cpoints) const
 {
   Mat image = _image.getMat();
-  Mat clone_image = image.clone();
 
   cout << "convert to grayscale" << endl;
   if(image.type() != CV_8UC1)
-    cvtColor(image,clone_image,COLOR_BGR2GRAY);
+    cvtColor(image,image,COLOR_BGR2GRAY);
   
   cout << "size of the image is " << endl;
   int wd =  image.cols;
   int ht = image.rows;
   cout << wd << " " << ht << endl;
-  int fctr = (wd*ht)/(720*480);
+/*  int fctr = (wd*ht)/(720*480);
   cout << fctr << " is the factor " << endl;
 
   cout << "smoothen the image to reduce image noise using sigma value " << sigma << endl;
@@ -315,11 +332,11 @@ void KatonaNyu::preprocessImage(InputArray _image, OutputArray bin_image,vector<
     pyrUp(tmp,dst,Size(tmp.cols*fctr,tmp.rows*fctr));
     image_smooth = dst;
   }
-  else
-    GaussianBlur(image,image_smooth,Size(0,0),sigma);
+  else*/
+  GaussianBlur(image,image,Size(0,0),sigma);
 //  imshow("smooth image",image_smooth);
 //  waitKey(0);
-  image = image_smooth;
+//  image = image_smooth;
 
   //Use resize() as pyramid. Create three pyramids.
   Mat pyr1,pyr2,pyr3;
@@ -350,6 +367,15 @@ void KatonaNyu::preprocessImage(InputArray _image, OutputArray bin_image,vector<
   computeMaxFreqandThreshold(pyr3);
   imwrite("/home/diggy/git/out_image/bin3.jpg",pyr3);
   
+  //Little morphology to combine 
+  // a basic function to combine very close objects for thin barcodes 
+  useMorphology(pyr1);
+  imwrite("/home/diggy/git/out_image/morph_pre1.jpg",pyr1);
+  useMorphology(pyr2);
+  imwrite("/home/diggy/git/out_image/morph_pre2.jpg",pyr2);
+  useMorphology(pyr3);
+  imwrite("/home/diggy/git/out_image/morph_pre3.jpg",pyr3);
+
   //remove the left FP regions based on size and proportions
   removeUnwantedRegions(pyr1);
   imwrite("/home/diggy/git/out_image/nounwanted1.jpg",pyr1);
