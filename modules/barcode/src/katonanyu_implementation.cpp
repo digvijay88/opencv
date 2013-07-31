@@ -198,13 +198,13 @@ static void removeFarObjects(Mat &image,Mat &distanceMap)
 static void removeRegionsUsingMorphology(Mat& bin_image)
 {
   //Need to change the size to max(40,width_widest_bar*3);
-  int ln_se = 30;
+  int ln_se = 20;
 //  int ln_se = max(40/*,width_widest_bar*3*/);
   Mat se = getStructuringElement(MORPH_RECT,Size(ln_se,ln_se));
   Mat morphed_image;
   dilate(bin_image,morphed_image,se);
 
-  se = getStructuringElement(MORPH_RECT,Size(ln_se/3,1));
+  se = getStructuringElement(MORPH_RECT,Size(ln_se/2,1));
   erode(morphed_image,bin_image,se);
 }
 
@@ -411,6 +411,14 @@ void KatonaNyu::preprocessImage(InputArray _image, OutputArray bin_image,vector<
   removeRegionsUsingMorphology(pyr3);
   imwrite("/home/diggy/git/out_image/morph3.jpg",pyr3);
 
+
+  //remove the left FP regions based on size and proportions
+  removeUnwantedRegions(pyr1);
+  imwrite("/home/diggy/git/out_image/final1.jpg",pyr1);
+  removeUnwantedRegions(pyr2);
+  imwrite("/home/diggy/git/out_image/final2.jpg",pyr2);
+  removeUnwantedRegions(pyr3);
+  imwrite("/home/diggy/git/out_image/final3.jpg",pyr3);
 
   // fill the rectangle and points vector
 //  convertToRectandPoints(image,barcode_rect, barcode_cpoints);
