@@ -116,10 +116,10 @@ static void computeAreaThresholdandApply(Mat& bin_image)
 {
   Mat edges;
   float areaThreshold;
-  blur(bin_image,edges,Size(3,3));
+//  blur(bin_image,edges,Size(3,3));
 
   cout << "1" << endl;
-  Canny(edges,edges,100,100*3,5);
+//  Canny(edges,edges,100,100*3,5);
   vector<vector<Point> > contours;
   vector<Vec4i> hierarchy;
 
