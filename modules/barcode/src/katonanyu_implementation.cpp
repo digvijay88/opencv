@@ -93,7 +93,7 @@ static void computeMaxFreqandThreshold(Mat& image)
     if(gray_hist.at<float>(i) < thresh)
       gray_hist.at<float>(i) = 0;
 
-// imwrite("/home/diggy/git/out_image/before.jpg",image);
+// imwrite("/tmp/before.jpg",image);
   for(int i=0;i<image.rows;i++)
   {
     for(int j=0;j<image.cols;j++)
@@ -157,8 +157,8 @@ static void computeAreaThresholdandApply(Mat& bin_image)
   cout << "1" << endl;
 
   bin_image = out_draw;
-  imwrite("/home/diggy/git/out_image/areathreshold1.jpg",bin_image);
-  imwrite("/home/diggy/git/out_image/areathreshold2.jpg",out_draw1);
+  imwrite("/tmp/areathreshold1.jpg",bin_image);
+  imwrite("/tmp/areathreshold2.jpg",out_draw1);
 }
 
 //compute distance threshold value and remove far objects
@@ -351,38 +351,38 @@ void KatonaNyu::preprocessImage(InputArray _image, OutputArray bin_image,vector<
 
   //applying bottomhat filtering to the image and the SE being linear is defined there.
   applyBottomhatFilter(pyr1);
-  imwrite("/home/diggy/git/out_image/bottom1.jpg",pyr1);
+  imwrite("/tmp/bottom1.jpg",pyr1);
   applyBottomhatFilter(pyr2);
-  imwrite("/home/diggy/git/out_image/bottom2.jpg",pyr2);
+  imwrite("/tmp/bottom2.jpg",pyr2);
   applyBottomhatFilter(pyr3);
-  imwrite("/home/diggy/git/out_image/bottom3.jpg",pyr3);
+  imwrite("/tmp/bottom3.jpg",pyr3);
 
   //frequency of the most frequently occuring element
   //compute the threshold next using MaxFreq and the image size and threshold the image and save it as bin_image
   Mat bin1,bin2,bin3;
   computeMaxFreqandThreshold(pyr1);
-  imwrite("/home/diggy/git/out_image/bin1.jpg",pyr1);
+  imwrite("/tmp/bin1.jpg",pyr1);
   computeMaxFreqandThreshold(pyr2);
-  imwrite("/home/diggy/git/out_image/bin2.jpg",pyr2);
+  imwrite("/tmp/bin2.jpg",pyr2);
   computeMaxFreqandThreshold(pyr3);
-  imwrite("/home/diggy/git/out_image/bin3.jpg",pyr3);
+  imwrite("/tmp/bin3.jpg",pyr3);
   
   //Little morphology to combine 
   // a basic function to combine very close objects for thin barcodes 
   useMorphology(pyr1);
-  imwrite("/home/diggy/git/out_image/morph_pre1.jpg",pyr1);
+  imwrite("/tmp/morph_pre1.jpg",pyr1);
   useMorphology(pyr2);
-  imwrite("/home/diggy/git/out_image/morph_pre2.jpg",pyr2);
+  imwrite("/tmp/morph_pre2.jpg",pyr2);
   useMorphology(pyr3);
-  imwrite("/home/diggy/git/out_image/morph_pre3.jpg",pyr3);
+  imwrite("/tmp/morph_pre3.jpg",pyr3);
 
   //remove the left FP regions based on size and proportions
   removeUnwantedRegions(pyr1);
-  imwrite("/home/diggy/git/out_image/nounwanted1.jpg",pyr1);
+  imwrite("/tmp/nounwanted1.jpg",pyr1);
   removeUnwantedRegions(pyr2);
-  imwrite("/home/diggy/git/out_image/nounwanted2.jpg",pyr2);
+  imwrite("/tmp/nounwanted2.jpg",pyr2);
   removeUnwantedRegions(pyr3);
-  imwrite("/home/diggy/git/out_image/nounwanted3.jpg",pyr3);
+  imwrite("/tmp/nounwanted3.jpg",pyr3);
 
   //compute distance map for the image and then distance threshold from that.
   Mat dmap1,dmap2,dmap3;
@@ -396,29 +396,29 @@ void KatonaNyu::preprocessImage(InputArray _image, OutputArray bin_image,vector<
 
   //compute distance threshold and remove Far regions using distance map and threshold
   removeFarObjects(pyr1,dmap1);
-  imwrite("/home/diggy/git/out_image/dmap1.jpg",pyr1);
+  imwrite("/tmp/dmap1.jpg",pyr1);
   removeFarObjects(pyr2,dmap2);
-  imwrite("/home/diggy/git/out_image/dmap2.jpg",pyr2);
+  imwrite("/tmp/dmap2.jpg",pyr2);
   removeFarObjects(pyr3,dmap3);
-  imwrite("/home/diggy/git/out_image/dmap3.jpg",pyr3);
+  imwrite("/tmp/dmap3.jpg",pyr3);
 
 
   //removing unwanted text and other regions using morphology : dilation and then erosion. SE to be defined there
   removeRegionsUsingMorphology(pyr1);
-  imwrite("/home/diggy/git/out_image/morph1.jpg",pyr1);
+  imwrite("/tmp/morph1.jpg",pyr1);
   removeRegionsUsingMorphology(pyr2);
-  imwrite("/home/diggy/git/out_image/morph2.jpg",pyr2);
+  imwrite("/tmp/morph2.jpg",pyr2);
   removeRegionsUsingMorphology(pyr3);
-  imwrite("/home/diggy/git/out_image/morph3.jpg",pyr3);
+  imwrite("/tmp/morph3.jpg",pyr3);
 
 
   //remove the left FP regions based on size and proportions
   removeUnwantedRegions(pyr1);
-  imwrite("/home/diggy/git/out_image/final1.jpg",pyr1);
+  imwrite("/tmp/final1.jpg",pyr1);
   removeUnwantedRegions(pyr2);
-  imwrite("/home/diggy/git/out_image/final2.jpg",pyr2);
+  imwrite("/tmp/final2.jpg",pyr2);
   removeUnwantedRegions(pyr3);
-  imwrite("/home/diggy/git/out_image/final3.jpg",pyr3);
+  imwrite("/tmp/final3.jpg",pyr3);
 
   // fill the rectangle and points vector
 //  convertToRectandPoints(image,barcode_rect, barcode_cpoints);
