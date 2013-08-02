@@ -294,10 +294,10 @@ static void convertToRectandPoints(Mat& bin_image,vector<RotatedRect>& barcode_r
 void KatonaNyu::operator()(InputArray _image, vector<RotatedRect>& _barcode_rect,
 			vector<Point>& _barcode_cpoints,string& decode_output) const
 {
-  Mat bin_image;
-  
+//  OutputArray bin_image;
+   
   //preprocess the image to get a binary image as output
-  preprocessImage(_image,bin_image,_barcode_rect,_barcode_cpoints);
+  preprocessImage(_image,_barcode_rect,_barcode_cpoints);
 
   //from the binary image, save obtain the barcode detection regions
 //  findBarcodeRegions(bin_image, _barcode_rect, _barcode_cpoints);
@@ -305,7 +305,7 @@ void KatonaNyu::operator()(InputArray _image, vector<RotatedRect>& _barcode_rect
   
 
 
-void KatonaNyu::preprocessImage(InputArray _image, OutputArray bin_image,vector<RotatedRect>& barcode_rect,
+void KatonaNyu::preprocessImage(InputArray _image,vector<RotatedRect>& barcode_rect,
 			vector<Point>& barcode_cpoints) const
 {
   Mat image = _image.getMat();
