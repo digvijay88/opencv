@@ -47,7 +47,9 @@ int main(int argc,char** argv)
   vector<Point> barcode_cpoints;
   Mat output;
   KatonaNyu detectr;
-  detectr.preprocessImage(image,output);
+  detectr.preprocessImage(image,barcode_rect,barcode_cpoints);
+  
+//  detectr.findBarcodeRegions(output,barcode_rect,barcode_cpoints);
 
   return 0;
 }
