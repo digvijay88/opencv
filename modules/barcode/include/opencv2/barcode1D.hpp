@@ -148,13 +148,16 @@ public:
   AlgorithmInfo* info() const;
 
   // preprocess the image by applying smoothing, edge enhancement etc and giving a binary thresholded image as output.
-  void preprocessImage(InputArray image, OutputArray bin_image) const;
+  void preprocessImage(InputArray image, std::vector<RotatedRect>& barcode_rect,
+  			std::vector<Point>& barcode_cpoints) const;
+  
+//  void findBarcodeRegions(InputArray bin_image, std::vector<RotatedRect>& barcode_rect,
+//  			std::vector<Point>& barcode_cpoints) const;
+
 protected:
   
 
   //Find barcode regions by removing FP from the input binary image
-  void findBarcodeRegions(InputArray bin_image, std::vector<RotatedRect>& barcode_rect,
-  			std::vector<Point>& barcode_cpoints) const;
 
   //Parameters
   CV_PROP_RW Size gausskernelSize;
