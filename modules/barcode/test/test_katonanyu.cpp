@@ -47,7 +47,7 @@ protected:
     vector<Point> barcode_cpoints;
     string decode_output;
     Mat image_out;
-    detector->preprocessImage(image,image_out);
+    detector->preprocessImage(image,barcode_rect,barcode_cpoints);
 //    detector->detect(image, barcode_rect, barcode_cpoints, decode_output);
 
 /*    if(barcode_rect.empty() && barcode_cpoints.empty())
